@@ -1,0 +1,18 @@
+{
+  "name": "minha-rotina",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.10.0",
+  "scripts": {
+    "build": "pnpm -r build",
+    "lint": "pnpm -r run lint",
+    "format": "pnpm -r format",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "openapi": "pnpm --filter @minha-rotina/api openapi",
+    "db:generate": "pnpm --filter @minha-rotina/api db:generate",
+    "db:migrate": "pnpm --filter @minha-rotina/api db:migrate",
+    "dev": "pnpm --filter @minha-rotina/api dev",
+    "start": "pnpm --filter @minha-rotina/api start"
+  }
+}
