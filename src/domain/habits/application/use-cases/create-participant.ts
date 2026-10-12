@@ -20,14 +20,17 @@ export class CreateParticipantUseCase {
     if (await this.participantRepository.findByEmail(email)) {
       return left(new ParticipantAlreadyExistsError())
     }
+
     const participant: Participant = {
       id: randomUUID(),
       name: input.name.trim(),
       email,
     }
+
     if (!(await this.participantRepository.create(participant))) {
       return left(new ParticipantAlreadyExistsError())
     }
+
     return right(participant)
   }
 }

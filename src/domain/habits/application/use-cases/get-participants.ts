@@ -12,6 +12,7 @@ export class GetParticipantsUseCase {
       page,
       limit,
     })
+
     return {
       participants,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },

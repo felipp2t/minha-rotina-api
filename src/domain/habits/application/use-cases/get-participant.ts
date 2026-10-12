@@ -14,6 +14,7 @@ export class GetParticipantUseCase {
     if (!participant) {
       return left(new ParticipantNotFoundError())
     }
+
     return right(participant)
   }
 }
