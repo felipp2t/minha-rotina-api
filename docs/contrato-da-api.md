@@ -1,4 +1,4 @@
-# Minha Rotina — contrato da API
+# Minha Rotina: contrato da API
 
 Status: rotas de participantes implementadas e testadas; metas, registros e progresso permanecem planejados.
 
@@ -50,7 +50,7 @@ Por exemplo, `GET /participants?pag=1` retorna HTTP `400`:
 {"message":"Campos inválidos.","metadata":{"fields":[{"field":"pag","message":"Parâmetro não permitido."}]}}
 ```
 
-## Participantes — API simples da entrega
+## Participantes: API simples da entrega
 
 ### POST /participants
 
@@ -180,19 +180,19 @@ O cálculo de progresso soma todos os registros da meta na data consultada, inde
 
 Formato confirmado pelo grupo: o status fica apenas na resposta HTTP; o corpo contém `message` e `metadata`. `metadata` contém `fields`, um array de objetos com `field` e `message`, ambos strings. Quando não houver erros associados a campos específicos, `fields` será um array vazio. Não há outros atributos de metadata previstos nesta etapa.
 
-### Regra de negócio — HTTP 400
+### Regra de negócio: HTTP 400
 
 ```json
 {"message":"A data da prática não pode ser anterior ao início da meta.","metadata":{"fields":[]}}
 ```
 
-### Campo inválido — HTTP 400
+### Campo inválido: HTTP 400
 
 ```json
 {"message":"Campos inválidos.","metadata":{"fields":[{"field":"quantity","message":"Informe um inteiro positivo."}]}}
 ```
 
-### Recurso inexistente — HTTP 404
+### Recurso inexistente: HTTP 404
 
 ```json
 {"message":"Meta não encontrada.","metadata":{"fields":[]}}

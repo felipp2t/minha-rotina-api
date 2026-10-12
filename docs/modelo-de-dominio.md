@@ -1,4 +1,4 @@
-# Minha Rotina — modelo de domínio
+# Minha Rotina: modelo de domínio
 
 Status: schemas e migrations das três tabelas implementados; modelo de participantes implementado; operações de metas e registros pendentes.
 

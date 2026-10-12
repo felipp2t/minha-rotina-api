@@ -1,4 +1,4 @@
-# Minha Rotina — desenho técnico do backend
+# Minha Rotina: desenho técnico do backend
 
 Status: configuração, PostgreSQL e participantes implementados; demais operações planejadas.
 

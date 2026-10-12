@@ -36,11 +36,11 @@ O calendário usa `America/Sao_Paulo`, com datas no formato `AAAA-MM-DD`. Quanti
 
 | Regra | Comportamento planejado |
 |---|---|
-| R1 — Preservar a medição do histórico | Alvo e unidade são fixos; uma mudança exige encerrar a meta e criar outra |
-| R2 — Respeitar o período da meta | Registros só aceitam datas entre o início da meta e hoje |
-| R3 — Impedir registros em metas encerradas | Uma meta encerrada não recebe novos registros, inclusive atrasados |
-| R4 — Calcular o cumprimento diário | Somar as quantidades da mesma meta e data; o dia é cumprido quando o total atinge ou ultrapassa o alvo |
-| R5 — Evitar compromissos duplicados | Impedir metas não encerradas com nome e unidade iguais para o mesmo participante, ignorando caixa e espaços nas extremidades do nome |
+| R1: Preservar a medição do histórico | Alvo e unidade são fixos; uma mudança exige encerrar a meta e criar outra |
+| R2: Respeitar o período da meta | Registros só aceitam datas entre o início da meta e hoje |
+| R3: Impedir registros em metas encerradas | Uma meta encerrada não recebe novos registros, inclusive atrasados |
+| R4: Calcular o cumprimento diário | Somar as quantidades da mesma meta e data; o dia é cumprido quando o total atinge ou ultrapassa o alvo |
+| R5: Evitar compromissos duplicados | Impedir metas não encerradas com nome e unidade iguais para o mesmo participante, ignorando caixa e espaços nas extremidades do nome |
 
 As regras serão implementadas nos casos de uso da camada de aplicação. Violações de R2, R3 e R5 retornarão `400` com mensagem explicativa. Repetir o encerramento retornará sucesso, mantendo o instante do primeiro encerramento.
 

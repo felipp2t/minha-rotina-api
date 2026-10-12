@@ -55,11 +55,11 @@ Pessoas que desejam manter hábitos saudáveis precisam acompanhar quanto pratic
 
 | Regra | Comportamento esperado |
 |---|---|
-| R1 — Preservar a medição do histórico | Alvo e unidade ficam fixos desde a criação; para mudá-los, encerra-se a meta e cria-se outra |
-| R2 — Respeitar o período da meta | Um registro não pode ter data anterior ao início da meta nem posterior ao dia atual |
-| R3 — Impedir registros em metas encerradas | Uma meta encerrada não aceita novos registros, mesmo que a data da prática seja anterior ao encerramento |
-| R4 — Calcular o cumprimento diário | Somar os registros da mesma meta e data; considerar o dia cumprido quando o total atingir ou ultrapassar o alvo |
-| R5 — Evitar compromissos duplicados | Impedir duas metas não encerradas do mesmo participante com nome e unidade iguais, incluindo metas com início futuro; ignorar maiúsculas e espaços nas extremidades do nome |
+| R1: Preservar a medição do histórico | Alvo e unidade ficam fixos desde a criação; para mudá-los, encerra-se a meta e cria-se outra |
+| R2: Respeitar o período da meta | Um registro não pode ter data anterior ao início da meta nem posterior ao dia atual |
+| R3: Impedir registros em metas encerradas | Uma meta encerrada não aceita novos registros, mesmo que a data da prática seja anterior ao encerramento |
+| R4: Calcular o cumprimento diário | Somar os registros da mesma meta e data; considerar o dia cumprido quando o total atingir ou ultrapassar o alvo |
+| R5: Evitar compromissos duplicados | Impedir duas metas não encerradas do mesmo participante com nome e unidade iguais, incluindo metas com início futuro; ignorar maiúsculas e espaços nas extremidades do nome |
 
 A unicidade de e-mail é uma regra adicional de cadastro, aplicada pelo caso de uso e garantida no banco. Ela não substitui as três regras específicas do acompanhamento de hábitos exigidas para a demonstração.
 

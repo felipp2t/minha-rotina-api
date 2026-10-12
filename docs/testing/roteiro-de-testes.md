@@ -1,4 +1,4 @@
-# Minha Rotina — roteiro de testes e demonstração
+# Minha Rotina: roteiro de testes e demonstração
 
 Status: cenários de participantes cobertos por testes automatizados; cenários de metas e registros ainda planejados.
 

@@ -1,4 +1,4 @@
-# Minha Rotina — plano de implementação e divisão do grupo
+# Minha Rotina: plano de implementação e divisão do grupo
 
 Status: divisão e dias de entrega confirmados; sequência proposta. Mês e ano considerados pelo contexto da sessão: outubro de 2026. Horários não informados. Responsáveis associados na ordem em que os nomes foram informados.
 
@@ -17,13 +17,13 @@ O enunciado disponível descreve uma entrega antes da Aula 11. Para este planeja
 
 | Integrante | Responsabilidade principal | Componentes |
 |---|---|---|
-| Pessoa 1 — Felipe Rossetto da Silva | Configuração, banco, migrations e API simples de participantes | Casos de uso e controllers de participantes, factories, ParticipantRepository, DrizzleParticipantRepository, mappers e schemas |
-| Pessoa 2 — João Otávio Benedet Zanette | Criação, consulta e encerramento de metas | Casos de uso e controllers de metas, factories, HabitGoalRepository, DrizzleHabitGoalRepository, mappers e schemas |
-| Pessoa 3 — Renan Floriano | Registros, histórico e progresso diário | Casos de uso e controllers de registros/progresso, factories, PracticeRecordRepository, DrizzlePracticeRecordRepository, mappers e schemas |
+| Pessoa 1: Felipe Rossetto da Silva | Configuração, banco, migrations e API simples de participantes | Casos de uso e controllers de participantes, factories, ParticipantRepository, DrizzleParticipantRepository, mappers e schemas |
+| Pessoa 2: João Otávio Benedet Zanette | Criação, consulta e encerramento de metas | Casos de uso e controllers de metas, factories, HabitGoalRepository, DrizzleHabitGoalRepository, mappers e schemas |
+| Pessoa 3: Renan Floriano | Registros, histórico e progresso diário | Casos de uso e controllers de registros/progresso, factories, PracticeRecordRepository, DrizzlePracticeRecordRepository, mappers e schemas |
 
 Cada integrante implementa todas as camadas de sua funcionalidade. Pessoa 1 coordena os schemas e migrations para evitar alterações concorrentes conflitantes; as outras pessoas definem com ela os campos de suas tabelas. Todos revisam a integração e conseguem explicar o fluxo completo na apresentação.
 
-## Etapa 1 — Preparação
+## Etapa 1: Preparação
 
 - Partir do template oficial, preservando docs e Docker Compose, preenchendo o README do grupo e adaptando o código para Node conforme a [seção 8 das orientações de arquitetura](../enunciado/ARQUITETURA.md#8-em-outra-linguagem).
 - Criar o repositório público do Minha Rotina, adicionar os três colaboradores e fixar versões compatíveis das ferramentas.
@@ -33,7 +33,7 @@ Cada integrante implementa todas as camadas de sua funcionalidade. Pessoa 1 coor
 
 Prova de conclusão: cada integrante sobe o banco e a API e aplica as migrations em um banco vazio.
 
-## Etapa 2 — Implementação por funcionalidade
+## Etapa 2: Implementação por funcionalidade
 
 1. Pessoa 1 implementa POST, GET e GET por ID de participantes, com `400` e `404`.
 2. Pessoa 2 implementa metas e R5, incluindo encerramento e preservação do alvo/unidade (R1).
@@ -43,7 +43,7 @@ As pessoas 2 e 3 podem trabalhar em paralelo após acordar os contratos dos Repo
 
 Prova de conclusão: cadastrar participante, meta e registros, consultar o progresso, encerrar a meta e demonstrar bloqueios por datas, encerramento e duplicidade.
 
-## Etapa 3 — Integração e entrega
+## Etapa 3: Integração e entrega
 
 - Executar o [roteiro de testes](../testing/roteiro-de-testes.md) e corrigir divergências entre código e documentos.
 - Preencher o README do projeto com problema, integrantes, regras, mapa de classes, rotas, comandos reais e situação de cada funcionalidade.
@@ -54,7 +54,7 @@ Prova de conclusão: cadastrar participante, meta e registros, consultar o progr
 
 Reservar o último dia disponível para integração e ensaio, sem adicionar funcionalidades.
 
-## Apresentação — até 10 minutos
+## Apresentação: até 10 minutos
 
 | Tempo | Conteúdo | Responsável sugerido |
 |---|---|---|

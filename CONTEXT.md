@@ -1,4 +1,4 @@
-# Minha Rotina — acompanhamento de hábitos saudáveis
+# Minha Rotina: acompanhamento de hábitos saudáveis
 
 Sistema para acompanhar metas pessoais de hábitos saudáveis e manter o histórico das práticas realizadas. O projeto pertence ao tema Saúde e Bem-Estar.
 
