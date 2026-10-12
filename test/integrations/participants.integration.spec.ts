@@ -10,6 +10,7 @@ import {
   vi,
 } from 'vitest'
 import { buildApp } from '../../src/app.js'
+import { Participant } from '../../src/domain/habits/enterprise/entities/participant.js'
 import { setDatabase } from '../../src/infra/db/database.js'
 import { DrizzleParticipantRepository } from '../../src/infra/db/drizzle/repositories/participant-repository.js'
 import { participants } from '../../src/infra/db/drizzle/schema/participants.js'
@@ -63,7 +64,8 @@ describe('Participant HTTP API with PostgreSQL', () => {
     const stored = await new DrizzleParticipantRepository(
       testDatabase.database,
     ).findById(participant.id)
-    expect(stored).toEqual(participant)
+    expect(stored).toBeInstanceOf(Participant)
+    expect(stored).toMatchObject(participant)
   })
   it('rejects an email duplicate after normalization', async () => {
     await createParticipant()

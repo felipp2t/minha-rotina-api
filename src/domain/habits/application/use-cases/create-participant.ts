@@ -1,6 +1,5 @@
-import { randomUUID } from 'node:crypto'
 import { type Either, left, right } from '../../../../core/types/either.js'
-import type { Participant } from '../../enterprise/entities/participant.js'
+import { Participant } from '../../enterprise/entities/participant.js'
 import type { ParticipantRepository } from '../repositories/participant-repository.js'
 import { ParticipantAlreadyExistsError } from './errors/participant-already-exists-error.js'
 
@@ -21,11 +20,7 @@ export class CreateParticipantUseCase {
       return left(new ParticipantAlreadyExistsError())
     }
 
-    const participant: Participant = {
-      id: randomUUID(),
-      name: input.name.trim(),
-      email,
-    }
+    const participant = Participant.create({ name: input.name.trim(), email })
 
     if (!(await this.participantRepository.create(participant))) {
       return left(new ParticipantAlreadyExistsError())

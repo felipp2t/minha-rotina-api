@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { InMemoryParticipantRepository } from '../../../../../test/repositories/in-memory-participant-repository.js'
+import { Participant } from '../../enterprise/entities/participant.js'
 import { GetParticipantsUseCase } from './get-participants.js'
 
 describe('List participants', () => {
@@ -11,11 +12,12 @@ describe('List participants', () => {
       ['2', 'Ana'],
       ['1', 'Ana'],
     ]) {
-      await repository.create({
-        id: id ?? '',
-        name: name ?? '',
-        email: `${id}@example.com`,
-      })
+      await repository.create(
+        Participant.create(
+          { name: name ?? '', email: `${id}@example.com` },
+          id ?? '',
+        ),
+      )
     }
 
     const result = await new GetParticipantsUseCase(repository).execute({
@@ -38,7 +40,9 @@ describe('List participants', () => {
   it('preserves requested page and totals beyond the final page', async () => {
     const repository = new InMemoryParticipantRepository()
 
-    await repository.create({ id: '1', name: 'Ana', email: 'ana@example.com' })
+    await repository.create(
+      Participant.create({ name: 'Ana', email: 'ana@example.com' }, '1'),
+    )
 
     const result = await new GetParticipantsUseCase(repository).execute({
       page: 3,

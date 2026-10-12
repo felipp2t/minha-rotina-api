@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { InMemoryParticipantRepository } from '../../../../../test/repositories/in-memory-participant-repository.js'
+import { Participant } from '../../enterprise/entities/participant.js'
 import { CreateParticipantUseCase } from './create-participant.js'
 import { ParticipantAlreadyExistsError } from './errors/participant-already-exists-error.js'
 
@@ -9,14 +10,15 @@ const uuidPattern =
 describe('Create participant', () => {
   it('normalizes name and email and generates a UUID', async () => {
     const repository = new InMemoryParticipantRepository()
-    
+
     const result = await new CreateParticipantUseCase(repository).execute({
       name: ' Ana Silva ',
       email: ' ANA@EXAMPLE.COM ',
     })
 
     expect(result.isRight()).toBe(true)
-    expect(repository.items).toEqual([
+    expect(result.value).toBeInstanceOf(Participant)
+    expect(repository.items).toMatchObject([
       {
         id: expect.stringMatching(uuidPattern),
         name: 'Ana Silva',
@@ -27,11 +29,11 @@ describe('Create participant', () => {
 
   it('rejects a normalized duplicate without creating another participant', async () => {
     const repository = new InMemoryParticipantRepository()
-    
+
     const useCase = new CreateParticipantUseCase(repository)
-    
+
     await useCase.execute({ name: 'Ana', email: 'ana@example.com' })
-    
+
     const result = await useCase.execute({
       name: 'Outra',
       email: ' ANA@EXAMPLE.COM ',
@@ -44,9 +46,9 @@ describe('Create participant', () => {
 
   it('translates a uniqueness conflict that happens after the initial lookup', async () => {
     const repository = new InMemoryParticipantRepository()
-    
+
     vi.spyOn(repository, 'create').mockResolvedValue(false)
-    
+
     const result = await new CreateParticipantUseCase(repository).execute({
       name: 'Ana',
       email: 'ana@example.com',
