@@ -1,0 +1,262 @@
+{
+	"id": "9bfbc228-9dd3-489b-ae93-2b347575d2e0",
+	"prevId": "00000000-0000-0000-0000-000000000000",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.habit_goals": {
+			"name": "habit_goals",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"participant_id": {
+					"name": "participant_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(100)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"normalized_name": {
+					"name": "normalized_name",
+					"type": "varchar(100)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"daily_target": {
+					"name": "daily_target",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"unit": {
+					"name": "unit",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"start_date": {
+					"name": "start_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"closed_at": {
+					"name": "closed_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {
+				"habit_goals_active_unique": {
+					"name": "habit_goals_active_unique",
+					"columns": [
+						{
+							"expression": "participant_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "normalized_name",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "unit",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": true,
+					"where": "\"habit_goals\".\"closed_at\" is null",
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"habit_goals_participant_id_participants_id_fk": {
+					"name": "habit_goals_participant_id_participants_id_fk",
+					"tableFrom": "habit_goals",
+					"tableTo": "participants",
+					"columnsFrom": ["participant_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {
+				"habit_goals_name_check": {
+					"name": "habit_goals_name_check",
+					"value": "length(btrim(\"habit_goals\".\"name\")) > 0 and \"habit_goals\".\"name\" = btrim(\"habit_goals\".\"name\")"
+				},
+				"habit_goals_normalized_name_check": {
+					"name": "habit_goals_normalized_name_check",
+					"value": "\"habit_goals\".\"normalized_name\" = lower(btrim(\"habit_goals\".\"name\"))"
+				},
+				"habit_goals_daily_target_check": {
+					"name": "habit_goals_daily_target_check",
+					"value": "\"habit_goals\".\"daily_target\" > 0"
+				},
+				"habit_goals_unit_check": {
+					"name": "habit_goals_unit_check",
+					"value": "\"habit_goals\".\"unit\" in ('ML', 'MINUTES', 'REPETITIONS')"
+				}
+			},
+			"isRLSEnabled": false
+		},
+		"public.participants": {
+			"name": "participants",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(100)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"email": {
+					"name": "email",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"participants_email_unique": {
+					"name": "participants_email_unique",
+					"nullsNotDistinct": false,
+					"columns": ["email"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {
+				"participants_name_check": {
+					"name": "participants_name_check",
+					"value": "length(btrim(\"participants\".\"name\")) > 0 and \"participants\".\"name\" = btrim(\"participants\".\"name\")"
+				},
+				"participants_email_check": {
+					"name": "participants_email_check",
+					"value": "length(\"participants\".\"email\") > 0 and \"participants\".\"email\" = lower(btrim(\"participants\".\"email\"))"
+				}
+			},
+			"isRLSEnabled": false
+		},
+		"public.practice_records": {
+			"name": "practice_records",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"goal_id": {
+					"name": "goal_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"date": {
+					"name": "date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"quantity": {
+					"name": "quantity",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {
+				"practice_records_goal_date_index": {
+					"name": "practice_records_goal_date_index",
+					"columns": [
+						{
+							"expression": "goal_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "date",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"practice_records_goal_id_habit_goals_id_fk": {
+					"name": "practice_records_goal_id_habit_goals_id_fk",
+					"tableFrom": "practice_records",
+					"tableTo": "habit_goals",
+					"columnsFrom": ["goal_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {
+				"practice_records_quantity_check": {
+					"name": "practice_records_quantity_check",
+					"value": "\"practice_records\".\"quantity\" > 0"
+				}
+			},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {},
+	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
+}
