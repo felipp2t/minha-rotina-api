@@ -137,6 +137,12 @@ pnpm openapi
 
 Para alterar o schema: edite os arquivos de `src/infra/db/drizzle/schema/`, execute `pnpm db:generate`, revise o SQL gerado e aplique com `pnpm db:migrate`. Não edite migrations já aplicadas.
 
+## Integração contínua
+
+O workflow `.github/workflows/ci.yml` executa em pushes e pull requests para `main`, além de permitir execução manual pelo GitHub Actions. Ele instala as dependências pelo lockfile, verifica tipos e lint, aplica migrations, executa testes unitários e de integração com PostgreSQL 17, compila a API e confere se `openapi.json` está atualizado.
+
+O banco do CI é temporário e usa credenciais de teste definidas no workflow. Não é necessário configurar secrets para essas verificações.
+
 ## Mapa da implementação de participantes
 
 | Responsabilidade | Arquivo em `src/` |
