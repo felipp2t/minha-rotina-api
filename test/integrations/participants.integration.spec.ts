@@ -14,7 +14,10 @@ import { Participant } from '../../src/domain/habits/enterprise/entities/partici
 import { setDatabase } from '../../src/infra/db/database.js'
 import { DrizzleParticipantRepository } from '../../src/infra/db/drizzle/repositories/participant-repository.js'
 import { participants } from '../../src/infra/db/drizzle/schema/participants.js'
-import type { ParticipantDto } from '../../src/infra/http/schemas/participant.schema.js'
+import {
+  type ParticipantDto,
+  toParticipantDto,
+} from '../../src/infra/http/schemas/participant.schema.js'
 import { createTestDatabase } from '../infra/db/test-database.js'
 
 const app = buildApp()
@@ -65,7 +68,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
       testDatabase.database,
     ).findById(participant.id)
     expect(stored).toBeInstanceOf(Participant)
-    expect(stored).toMatchObject(participant)
+    expect(stored && toParticipantDto(stored)).toEqual(participant)
   })
   it('rejects an email duplicate after normalization', async () => {
     await createParticipant()

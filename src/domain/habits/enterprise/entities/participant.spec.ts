@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { UniqueEntityID } from '../../../../core/entities/unique-entity-id.js'
 import { Participant } from './participant.js'
 
 describe('Participant entity', () => {
@@ -6,10 +7,10 @@ describe('Participant entity', () => {
     const props = { name: 'Ana', email: 'ana@example.com' }
     const participant = Participant.create(props)
     expect(participant).toBeInstanceOf(Participant)
-    expect(participant.id).toMatch(
+    expect(participant.id.toString()).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
     )
-    expect(participant.id).not.toBe(Participant.create(props).id)
+    expect(participant.id.equals(Participant.create(props).id)).toBe(false)
     expect(participant.name).toBe('Ana')
     expect(participant.email).toBe('ana@example.com')
   })
@@ -18,9 +19,9 @@ describe('Participant entity', () => {
     const id = '72f43a86-cf1a-4d20-b60a-3a9c92e5d8f1'
     const participant = Participant.create(
       { name: 'Ana', email: 'ana@example.com' },
-      id,
+      new UniqueEntityID(id),
     )
-    expect(participant.id).toBe(id)
+    expect(participant.id.toString()).toBe(id)
   })
 
   it('copies input properties so external mutation does not change the entity', () => {

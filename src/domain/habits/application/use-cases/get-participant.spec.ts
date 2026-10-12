@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { InMemoryParticipantRepository } from '../../../../../test/repositories/in-memory-participant-repository.js'
+import { UniqueEntityID } from '../../../../core/entities/unique-entity-id.js'
 import { Participant } from '../../enterprise/entities/participant.js'
 import { ParticipantNotFoundError } from './errors/participant-not-found-error.js'
 import { GetParticipantUseCase } from './get-participant.js'
@@ -10,12 +11,12 @@ describe('Get participant', () => {
 
     const participant = Participant.create(
       { name: 'Ana', email: 'ana@example.com' },
-      'participant-id',
+      new UniqueEntityID('participant-id'),
     )
 
     await repository.create(participant)
     const result = await new GetParticipantUseCase(repository).execute(
-      participant.id,
+      participant.id.toString(),
     )
 
     expect(result.isRight()).toBe(true)

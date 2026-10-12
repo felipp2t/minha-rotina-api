@@ -18,7 +18,13 @@ describe('Create participant', () => {
 
     expect(result.isRight()).toBe(true)
     expect(result.value).toBeInstanceOf(Participant)
-    expect(repository.items).toMatchObject([
+    expect(
+      repository.items.map(({ id, name, email }) => ({
+        id: id.toString(),
+        name,
+        email,
+      })),
+    ).toEqual([
       {
         id: expect.stringMatching(uuidPattern),
         name: 'Ana Silva',

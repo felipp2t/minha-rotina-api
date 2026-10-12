@@ -20,11 +20,15 @@ export class InMemoryParticipantRepository implements ParticipantRepository {
     )
   }
   findById(id: string): Promise<Participant | null> {
-    return Promise.resolve(this.items.find((item) => item.id === id) ?? null)
+    return Promise.resolve(
+      this.items.find((item) => item.id.toString() === id) ?? null,
+    )
   }
   findAll({ page, limit }: PaginationInput) {
     const ordered = [...this.items].sort(
-      (a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id),
+      (a, b) =>
+        a.name.localeCompare(b.name) ||
+        a.id.toString().localeCompare(b.id.toString()),
     )
     return Promise.resolve({
       participants: ordered.slice((page - 1) * limit, page * limit),

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { InMemoryParticipantRepository } from '../../../../../test/repositories/in-memory-participant-repository.js'
+import { UniqueEntityID } from '../../../../core/entities/unique-entity-id.js'
 import { Participant } from '../../enterprise/entities/participant.js'
 import { GetParticipantsUseCase } from './get-participants.js'
 
@@ -15,7 +16,7 @@ describe('List participants', () => {
       await repository.create(
         Participant.create(
           { name: name ?? '', email: `${id}@example.com` },
-          id ?? '',
+          new UniqueEntityID(id ?? ''),
         ),
       )
     }
@@ -25,9 +26,9 @@ describe('List participants', () => {
       limit: 1,
     })
 
-    expect(result.participants.map((participant) => participant.id)).toEqual([
-      '2',
-    ])
+    expect(
+      result.participants.map((participant) => participant.id.toString()),
+    ).toEqual(['2'])
 
     expect(result.pagination).toEqual({
       page: 2,
@@ -41,7 +42,10 @@ describe('List participants', () => {
     const repository = new InMemoryParticipantRepository()
 
     await repository.create(
-      Participant.create({ name: 'Ana', email: 'ana@example.com' }, '1'),
+      Participant.create(
+        { name: 'Ana', email: 'ana@example.com' },
+        new UniqueEntityID('1'),
+      ),
     )
 
     const result = await new GetParticipantsUseCase(repository).execute({

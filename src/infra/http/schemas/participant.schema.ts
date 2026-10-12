@@ -48,7 +48,7 @@ export type ParticipantDto = z.infer<typeof participantSchema>
 // Explicitly maps the internal participant to the public response DTO.
 export function toParticipantDto(participant: Participant): ParticipantDto {
   return {
-    id: participant.id,
+    id: participant.id.toString(),
     name: participant.name,
     email: participant.email,
   }
