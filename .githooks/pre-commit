@@ -1,0 +1,8 @@
+#!/bin/sh
+
+branch_name=$(git symbolic-ref --quiet --short HEAD) || exit 0
+
+if [ "$branch_name" = "main" ]; then
+  echo "Commits diretos na main estão bloqueados. Use develop ou uma branch de trabalho." >&2
+  exit 1
+fi

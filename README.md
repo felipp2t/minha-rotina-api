@@ -139,9 +139,17 @@ Para alterar o schema: edite os arquivos de `src/infra/db/drizzle/schema/`, exec
 
 ## Integração contínua
 
-O workflow `.github/workflows/ci.yml` executa em pushes e pull requests para `main`, além de permitir execução manual pelo GitHub Actions. Ele instala as dependências pelo lockfile, verifica tipos e lint, aplica migrations, executa testes unitários e de integração com PostgreSQL 17, compila a API e confere se `openapi.json` está atualizado.
+O workflow `.github/workflows/ci.yml` executa em pushes e pull requests para `main` e `develop`, além de permitir execução manual pelo GitHub Actions. Ele instala as dependências pelo lockfile, verifica tipos e lint, aplica migrations, executa testes unitários e de integração com PostgreSQL 17, compila a API e confere se `openapi.json` está atualizado.
 
 O banco do CI é temporário e usa credenciais de teste definidas no workflow. Não é necessário configurar secrets para essas verificações.
+
+## Fluxo de branches
+
+`develop` é a branch padrão. Crie branches de trabalho a partir dela e abra PRs para integrar as alterações. `main` recebe as entregas por PR.
+
+PRs para `main` e `develop` exigem o check `Backend checks` aprovado e a branch de origem atualizada com a branch de destino. As proteções também se aplicam aos administradores; pushes diretos, force pushes e exclusão dessas branches são bloqueados.
+
+`pnpm install` configura o hook de pre-commit de `.githooks/`, que bloqueia commits locais na `main`. Para ativá-lo em um clone já instalado, execute `pnpm run prepare`.
 
 ## Mapa da implementação de participantes
 
