@@ -1,18 +1,46 @@
 {
-  "name": "minha-rotina",
+  "name": "minha-rotina-api",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@11.10.0",
+  "type": "module",
   "scripts": {
-    "build": "pnpm -r build",
-    "lint": "pnpm -r run lint",
-    "format": "pnpm -r format",
-    "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
-    "openapi": "pnpm --filter @minha-rotina/api openapi",
-    "db:generate": "pnpm --filter @minha-rotina/api db:generate",
-    "db:migrate": "pnpm --filter @minha-rotina/api db:migrate",
-    "dev": "pnpm --filter @minha-rotina/api dev",
-    "start": "pnpm --filter @minha-rotina/api start"
+    "build": "tsc",
+    "check": "ultracite check",
+    "db:generate": "node --env-file-if-exists=.env ./node_modules/drizzle-kit/bin.cjs generate && biome format --write drizzle/meta",
+    "db:migrate": "node --env-file-if-exists=.env --import tsx/esm src/infra/db/migrate.ts",
+    "dev": "tsx watch --env-file-if-exists=.env src/server.ts",
+    "fix": "ultracite fix",
+    "format": "biome format --write",
+    "lint": "biome check",
+    "openapi": "node --import tsx/esm src/openapi.ts",
+    "start": "node --env-file-if-exists=.env dist/src/server.js",
+    "test": "node --env-file-if-exists=.env ./node_modules/vitest/vitest.mjs run",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run src",
+    "test:integration": "node --env-file-if-exists=.env ./node_modules/vitest/vitest.mjs run test"
+  },
+  "dependencies": {
+    "@fastify/swagger": "^9.7.0",
+    "@fastify/swagger-ui": "^5.2.5",
+    "date-fns": "^4.1.0",
+    "drizzle-orm": "^0.45.2",
+    "fastify": "^5.3.2",
+    "fastify-type-provider-zod": "^6.1.0",
+    "zod": "^4.3.6",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.12",
+    "@types/node": "^24.0.0",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.0",
+    "ultracite": "7.12.0",
+    "vitest": "^4.1.2",
+    "@types/pg": "^8.23.1"
+  },
+  "packageManager": "pnpm@11.10.0",
+  "engines": {
+    "node": ">=24"
   }
 }
