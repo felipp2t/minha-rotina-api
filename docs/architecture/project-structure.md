@@ -1,101 +1,84 @@
 # Estrutura do projeto
 
-Status: organização definida pelo grupo; estrutura executável ainda não criada.
+Status: backend único configurado na raiz; participantes implementados e banco criado para as três entidades.
 
 ## Organização
 
-O Minha Rotina usa um workspace pnpm com API em `apps/api`, configurações compartilhadas em `packages` e documentação em `docs`. O contexto `habits` reúne participantes, metas e registros. O domínio define o comportamento; a infraestrutura conecta esse comportamento ao HTTP e ao PostgreSQL.
+O Minha Rotina é um projeto backend único, com código em `src/`, testes em `test/`, configurações na raiz e documentação em `docs`. O contexto `habits` reúne participantes, metas e registros. O domínio define o comportamento; a infraestrutura conecta esse comportamento ao HTTP e ao PostgreSQL.
 
-## Estrutura prevista para esta entrega
+## Estrutura atual
 
 ```text
-minha-rotina/
-├── README.md
-├── CONTEXT.md
-├── docker-compose.yml
+minha-rotina-api/
 ├── package.json
-├── pnpm-workspace.yaml
 ├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
+├── tsconfig.json
 ├── biome.json
-├── apps/
-│   └── api/
-│       ├── package.json
-│       ├── tsconfig.json
-│       ├── vitest.config.ts
-│       ├── biome.json
-│       ├── drizzle.config.ts
-│       ├── openapi.json
-│       ├── drizzle/
-│       │   └── meta/
-│       ├── src/
-│       │   ├── app.ts
-│       │   ├── server.ts
-│       │   ├── openapi.ts
-│       │   ├── core/
-│       │   │   ├── errors/
-│       │   │   └── types/
-│       │   ├── domain/
-│       │   │   └── habits/
-│       │   │       ├── application/
-│       │   │       │   ├── repositories/
-│       │   │       │   └── use-cases/
-│       │   │       │       └── errors/
-│       │   │       └── enterprise/
-│       │   │           ├── entities/
-│       │   │           └── services/
-│       │   └── infra/
-│       │       ├── db/
-│       │       │   ├── database.ts
-│       │       │   ├── migrate.ts
-│       │       │   └── drizzle/
-│       │       │       ├── mappers/
-│       │       │       ├── repositories/
-│       │       │       ├── schema/
-│       │       │       │   └── index.ts
-│       │       │       └── scripts/
-│       │       └── http/
-│       │           ├── controllers/
-│       │           ├── factories/
-│       │           └── schemas/
-│       └── test/
-│           ├── repositories/
-│           ├── integrations/
-│           └── infra/
-│               └── db/
-│                   └── drizzle/
-├── packages/
-│   ├── biome/
-│   └── tsconfig/
+├── vitest.config.ts
+├── drizzle.config.ts
+├── docker-compose.yml
+├── .env.example
+├── openapi.json
+├── drizzle/
+│   └── meta/
+├── src/
+│   ├── app.ts
+│   ├── server.ts
+│   ├── openapi.ts
+│   ├── core/
+│   │   ├── errors/
+│   │   └── types/
+│   ├── domain/
+│   │   └── habits/
+│   │       ├── application/
+│   │       │   ├── repositories/
+│   │       │   └── use-cases/
+│   │       │       └── errors/
+│   │       └── enterprise/
+│   │           └── entities/
+│   └── infra/
+│       ├── db/
+│       │   ├── database.ts
+│       │   ├── migrate.ts
+│       │   └── drizzle/
+│       │       ├── mappers/
+│       │       ├── repositories/
+│       │       └── schema/
+│       │           └── index.ts
+│       └── http/
+│           ├── controllers/
+│           ├── factories/
+│           ├── schemas/
+│           └── error-handler.ts
+├── test/
+│   ├── repositories/
+│   ├── integrations/
+│   └── infra/
+│       └── db/
 └── docs/
 ```
 
-A árvore descreve os locais dos arquivos quando implementados, não funcionalidades prontas. Pastas sem necessidade atual, como `enterprise/services` e scripts de seed, podem ficar previstas até surgir conteúdo.
+`pnpm-workspace.yaml` configura somente a permissão de build do esbuild; não declara pacotes de workspace. TypeScript, Biome, Vitest e Drizzle são configurados diretamente na raiz.
 
-## Função das pastas de agrupamento
+## Função das pastas
 
 | Pasta | Função |
 |---|---|
-| `apps/` | Aplicações executáveis do workspace |
-| `apps/api/` | Código, dependências, configurações e testes da API |
-| `apps/api/src/` | Código executável da aplicação |
 | `src/core/` | Tipos e contratos técnicos compartilhados |
-| `src/domain/` | Contextos de negócio independentes de HTTP e banco |
-| `src/domain/habits/` | Contexto de acompanhamento de hábitos |
-| `habits/application/` | Orquestração das operações e contratos de persistência |
-| `habits/enterprise/` | Modelos e cálculos do domínio |
-| `src/infra/` | Implementações dos mecanismos externos |
-| `src/infra/db/` | Conexão, migrations e infraestrutura de persistência |
-| `src/infra/db/drizzle/` | Implementações de banco usando Drizzle |
-| `src/infra/db/drizzle/scripts/` | Scripts auxiliares, como seed de dados de demonstração |
-| `src/infra/http/` | Entrada HTTP, contratos públicos e composição das dependências |
-| `apps/api/drizzle/meta/` | Snapshots e controle gerados das migrations |
-| `apps/api/test/` | Suporte de testes e testes de integração |
-| `test/infra/` | Verificação da infraestrutura |
-| `test/infra/db/` | Verificação da conexão e persistência |
-| `test/infra/db/drizzle/` | Verificação dos schemas, mappers e operações Drizzle |
-| `packages/` | Configurações compartilhadas pelos pacotes do workspace |
+| `src/domain/habits/application/` | Casos de uso e contratos de persistência |
+| `src/domain/habits/enterprise/` | Modelos de domínio |
+| `src/infra/db/` | Conexão e aplicação de migrations |
+| `src/infra/db/drizzle/` | Schemas, mappers e repositórios PostgreSQL |
+| `src/infra/http/` | Controllers, DTOs, factories e tratamento de erros |
+| `drizzle/` | Migrations SQL versionadas |
+| `drizzle/meta/` | Snapshots e controle gerados pelo Drizzle Kit |
+| `test/repositories/` | Repositórios em memória para testes unitários |
+| `test/integrations/` | Testes HTTP com banco real |
+| `test/infra/db/` | Criação e remoção de bancos temporários de teste |
+| `docs/` | Planejamento, contratos e evidências de implementação |
 
-Os caminhos iniciados em `src/` são relativos a `apps/api/`; os caminhos iniciados em `habits/` são relativos a `apps/api/src/domain/`.
+Os caminhos de código nas tabelas abaixo são relativos a `src/`. Participantes estão implementados em todas as camadas. Para metas e registros, os schemas e migrations já existem; modelos, casos de uso, repositórios e HTTP permanecem planejados. Pastas de serviços de domínio e scripts auxiliares serão criadas quando houver conteúdo.
 
 ## Responsabilidades e nomes
 
@@ -116,7 +99,7 @@ Os caminhos iniciados em `src/` são relativos a `apps/api/`; os caminhos inicia
 | `drizzle/` | Migrations SQL versionadas e metadados gerados pelo Drizzle Kit |
 | `test/repositories/` | Implementações em memória para testes dos casos de uso |
 | `test/integrations/` e `test/infra/db/` | Testes HTTP e de persistência |
-| `packages/biome/` e `packages/tsconfig/` | Configurações compartilhadas de lint, formatação e TypeScript |
+| `biome.json` e `tsconfig.json` na raiz | Configurações de lint, formatação e TypeScript |
 
 Os testes unitários `*.spec.ts` ficam ao lado dos casos de uso. Casos de uso recebem contratos de repositório por construtor e retornam falhas esperadas por `Either`; os controllers convertem o resultado no contrato HTTP acordado. Falhas inesperadas e erros de validação recebem tratamento central configurado em `app.ts`.
 
@@ -143,6 +126,6 @@ Os testes unitários `*.spec.ts` ficam ao lado dos casos de uso. Casos de uso re
 | Model | `enterprise/entities/` e mapeamento de tabelas em `infra/db/drizzle/schema/` |
 | DTO | Contratos de entrada e saída em `infra/http/schemas/` |
 | Mapper | Mappers de persistência em `infra/db/drizzle/mappers/` e conversões de resposta na camada HTTP |
-| Config | `app.ts`, `infra/db/database.ts` e arquivos de configuração da API/workspace |
+| Config | `app.ts`, `infra/db/database.ts` e arquivos de configuração na raiz |
 
-O enunciado pede pastas por camada e classes por entidade. A estrutura escolhida organiza por domínio e infraestrutura, com controllers funcionais por ação. Esse desvio deve ser explicado ao professor: a aprovação relatada até agora foi somente do formato de erros. DTOs separados, conversões explícitas, migrations e regras na camada de aplicação continuam necessários.
+O enunciado pede pastas por camada e classes por entidade. A estrutura escolhida organiza por domínio e infraestrutura, com controllers funcionais por ação. Conforme informado por Felipe, o professor aceita a organização escolhida e o contrato de erros. DTOs separados, conversões explícitas, migrations e regras na camada de aplicação continuam necessários.

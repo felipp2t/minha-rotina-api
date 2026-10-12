@@ -1,6 +1,6 @@
 # Minha Rotina — modelo de domínio
 
-Status: conceitos e regras confirmados; campos técnicos propostos para implementação.
+Status: schemas e migrations das três tabelas implementados; modelo de participantes implementado; operações de metas e registros pendentes.
 
 O [vocabulário](../CONTEXT.md) define os termos. O sistema acompanha metas diárias pessoais e preserva as quantidades praticadas ao longo do tempo.
 
@@ -57,7 +57,7 @@ erDiagram
 - Unidade: `ML`, `MINUTES` ou `REPETITIONS`.
 - Alvo e quantidade maiores que zero.
 - A meta e a unidade determinam o significado da quantidade; o registro não recebe outra unidade.
-- Proposta: índice único parcial em `(participant_id, normalized_name, unit)` onde `closed_at IS NULL`, para garantir a regra de duplicidade também em cadastros simultâneos. O caso de uso valida a regra e traduz eventual conflito do banco para HTTP 400.
+- Índice único parcial implementado em `(participant_id, normalized_name, unit)` onde `closed_at IS NULL`, para garantir a regra de duplicidade também em cadastros simultâneos. O caso de uso valida a regra e traduz eventual conflito do banco para HTTP 400.
 - Novos registros exigem meta não encerrada e data entre o início e hoje no calendário de São Paulo.
 - Progresso diário e dia cumprido são calculados, não tabelas: `total = sum(quantity)` e `completed = total >= dailyTarget`.
 - Vários registros na mesma data são permitidos. Cada registro contribui apenas para a meta à qual pertence.
@@ -68,4 +68,4 @@ Alvo e unidade não são alterados após o cadastro. Uma nova configuração exi
 
 ## Implementação
 
-As três tabelas serão definidas nos schemas Drizzle e criadas por migrations SQL versionadas. Os modelos internos e DTOs serão separados; os Controllers não devolverão linhas do banco diretamente.
+As três tabelas estão definidas nos schemas Drizzle e são criadas por migrations SQL versionadas. Os modelos internos e DTOs serão separados; os Controllers não devolverão linhas do banco diretamente.

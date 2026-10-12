@@ -1,6 +1,6 @@
 # Documentação do Minha Rotina
 
-Status: escopo funcional acordado; contratos e estrutura técnica planejados.
+Status: configuração, banco e participantes implementados; demais operações planejadas.
 
 Esta documentação segue a organização do projeto de referência `lupia-sales-voice`, adaptada à entrega da disciplina de Backend.
 

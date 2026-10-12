@@ -2,7 +2,7 @@
 
 Backend para acompanhamento de hábitos saudáveis, desenvolvido como projeto da disciplina de Backend (Engenharia de Software), no tema **Saúde e Bem-Estar**.
 
-**Status:** planejamento e documentação inicial. A API, as migrations e a estrutura executável ainda não foram implementadas.
+**Status:** configuração, PostgreSQL e API de participantes implementados. Metas, registros e progresso diário ainda estão em planejamento.
 
 ## Problema e público
 
@@ -56,7 +56,7 @@ Convenção do projeto: funções, variáveis, classes, campos JSON, rotas e ide
 | Banco de dados | PostgreSQL |
 | Persistência | Drizzle ORM |
 
-O planejamento prevê PostgreSQL via Docker Compose, migrations SQL versionadas com Drizzle Kit e documentação OpenAPI com Swagger UI. Versões e configurações serão fixadas durante a implementação.
+PostgreSQL roda via Docker Compose, com migrations SQL versionadas pelo Drizzle Kit. A API usa Swagger UI em `/docs/` e exporta OpenAPI com `pnpm openapi`. O lockfile fixa as versões instaladas.
 
 ## Entidades e estrutura planejada
 
@@ -64,7 +64,7 @@ Os IDs das três entidades são UUIDs gerados pelo backend, representados como s
 
 Um **Participante** possui várias **Metas de hábito**; cada meta possui vários **Registros de prática**. O progresso diário é calculado a partir dos registros.
 
-A API fica em `apps/api`. As regras são implementadas em casos de uso no contexto `domain/habits`; controllers e factories ficam em `infra/http`, e schemas, mappers e repositórios Drizzle em `infra/db`.
+Este repositório contém um único backend, com código em `src/` e configurações na raiz. As regras são implementadas em casos de uso no contexto `domain/habits`; controllers e factories ficam em `infra/http`, e schemas, mappers e repositórios Drizzle em `infra/db`.
 
 | Entidade | Modelo | Contrato de persistência | Implementação |
 |---|---|---|---|
@@ -74,9 +74,9 @@ A API fica em `apps/api`. As regras são implementadas em casos de uso no contex
 
 Cada operação tem seu caso de uso, controller e factory. Schemas Zod definem DTOs separados dos modelos; mappers convertem dados de persistência. A [estrutura de pastas](docs/architecture/project-structure.md) apresenta a árvore completa e a função de cada pasta.
 
-Na equivalência com a disciplina, os casos de uso cumprem a responsabilidade dos Services. A organização por domínio e infraestrutura difere das pastas por camada solicitadas no enunciado; essa adaptação ainda precisa ser alinhada com o professor.
+Na equivalência com a disciplina, os casos de uso cumprem a responsabilidade dos Services. Conforme informado por Felipe, o professor aceita a organização adotada.
 
-## Rotas planejadas
+## Rotas
 
 URL base local: `http://localhost:3333`.
 
@@ -94,7 +94,7 @@ URL base local: `http://localhost:3333`.
 | GET | `/goals/{goalId}/records/{id}` | Buscar um registro da meta |
 | GET | `/goals/{id}/progress?date=AAAA-MM-DD` | Consultar progresso diário |
 
-Os exemplos de JSON e respostas estão no [contrato da API](docs/contrato-da-api.md). A API simples exigida na disciplina será a de participantes, com `400` para campos inválidos e `404` para recurso inexistente.
+As três rotas de participantes estão implementadas, com `400` para campos inválidos ou e-mail duplicado e `404` para participante inexistente. As demais rotas permanecem planejadas. Exemplos de JSON e respostas estão no [contrato da API](docs/contrato-da-api.md).
 
 As três listagens aceitam `page` e `limit` (padrões 1 e 20, máximo de 100 itens por página) e retornam `data` e `pagination` com os totais.
 
@@ -102,7 +102,59 @@ O contrato de erros usa `message` e `metadata.fields`, mantendo o status apenas 
 
 ## Como executar
 
-Ainda não há aplicação executável neste repositório. Os comandos de instalação, banco, migrations e inicialização serão documentados após a implementação e a validação em um clone novo.
+Requisitos: Node.js 24+, pnpm 11.10.0 e Docker com Compose. Execute na raiz:
+
+```bash
+pnpm install --frozen-lockfile
+cp .env.example .env
+docker compose up -d --wait
+pnpm db:migrate
+pnpm dev
+```
+
+API: `http://localhost:3333`. Swagger UI: `http://localhost:3333/docs/`.
+
+O PostgreSQL usa a porta local `5439` e persiste os dados em um volume Docker. As credenciais de `.env.example` são apenas para desenvolvimento local. `.env` fica fora do Git. Ajuste `DATABASE_URL`, `HOST` e `PORT` se necessário. A API aplica migrations pendentes também ao iniciar; não cria tabelas por outro mecanismo.
+
+Para executar o build:
+
+```bash
+pnpm build
+pnpm start
+```
+
+Comandos de verificação:
+
+```bash
+pnpm typecheck
+pnpm run lint
+pnpm test:unit
+pnpm test
+pnpm openapi
+```
+
+`pnpm test` inclui testes HTTP com PostgreSQL real. Eles criam e removem um banco temporário, sem apagar dados do banco configurado. O usuário de `TEST_DATABASE_URL` (ou `DATABASE_URL`, quando omitida) precisa de permissão `CREATEDB`; o usuário local do Compose já possui essa permissão. `pnpm test:integration` executa apenas essa cobertura.
+
+Para alterar o schema: edite os arquivos de `src/infra/db/drizzle/schema/`, execute `pnpm db:generate`, revise o SQL gerado e aplique com `pnpm db:migrate`. Não edite migrations já aplicadas.
+
+## Mapa da implementação de participantes
+
+| Responsabilidade | Arquivo em `src/` |
+|---|---|
+| Modelo de domínio | `domain/habits/enterprise/entities/participant.ts` |
+| Contrato de persistência | `domain/habits/application/repositories/participant-repository.ts` |
+| Casos de uso / Services | `domain/habits/application/use-cases/create-participant.ts`, `get-participant.ts`, `get-participants.ts` |
+| Erros de domínio | `domain/habits/application/use-cases/errors/participant-already-exists-error.ts`, `participant-not-found-error.ts` |
+| Repository PostgreSQL | `infra/db/drizzle/repositories/participant-repository.ts` |
+| Mapper de persistência | `infra/db/drizzle/mappers/drizzle-participant-mapper.ts` |
+| Tabela e constraints | `infra/db/drizzle/schema/participants.ts` |
+| DTOs e conversão pública | `infra/http/schemas/participant.schema.ts` |
+| Controllers | `infra/http/controllers/create-participant.controller.ts`, `get-participant.controller.ts`, `get-participants.controller.ts` |
+| Composição por construtor | `infra/http/factories/make-create-participant-use-case.ts`, `make-get-participant-use-case.ts`, `make-get-participants-use-case.ts` |
+| Contrato e tratamento de erros | `infra/http/schemas/error.schema.ts`, `infra/http/error-handler.ts` |
+
+Os casos de uso recebem o contrato de Repository por construtor e retornam falhas esperadas por `Either`. Os controllers devolvem DTOs explícitos. A unicidade de e-mail também é garantida pelo banco; conflitos em cadastros simultâneos retornam `400`.
+
 
 ## Situação da entrega
 
@@ -112,8 +164,10 @@ Ainda não há aplicação executável neste repositório. Os comandos de instal
 | Modelo de domínio e diagrama | Documentados, com campos técnicos propostos |
 | Contrato da API | Documentado, com detalhes técnicos propostos |
 | Divisão de tarefas e roteiro de testes | Documentados |
-| Estrutura do código, banco e migrations | Pendentes |
-| API e regras funcionando | Pendentes |
+| Banco e migrations | Três tabelas criadas, com constraints e chaves estrangeiras |
+| Estrutura do código | Participantes implementados; metas e registros pendentes |
+| API simples | Cadastro, listagem paginada e busca de participantes implementados e testados |
+| Regras R1–R5 pela API | Pendentes; constraints de banco preparadas |
 | Autoavaliação | Ficha criada; verificação da implementação pendente |
 
 ## Prazos

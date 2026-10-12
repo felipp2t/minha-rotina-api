@@ -1,6 +1,6 @@
 # Minha Rotina — roteiro de testes e demonstração
 
-Status: planejado, ainda não executado.
+Status: cenários de participantes cobertos por testes automatizados; cenários de metas e registros ainda planejados.
 
 Usar Swagger UI ou Postman e datas calculadas em `America/Sao_Paulo`. Nos testes automatizados das regras, controlar o relógio para que os cenários não dependam do dia da execução.
 
@@ -65,3 +65,13 @@ Usar Swagger UI ou Postman e datas calculadas em `America/Sao_Paulo`. Nos testes
 ## Evidências
 
 Ao executar, registrar data, responsável e resultado. Preparar uma sequência curta de requisições para a apresentação: API simples, ID inexistente, campo inválido, três regras impeditivas e progresso acima do alvo.
+
+## Cobertura automatizada atual
+
+- `pnpm test:unit`: casos de uso de participantes com repositório em memória.
+- `pnpm test:integration`: HTTP, PostgreSQL real, migrations, normalização, unicidade concorrente, paginação, validação, erros e Swagger.
+- `pnpm test`: ambas as coberturas.
+
+Os testes de integração usam `TEST_DATABASE_URL` ou `DATABASE_URL` para criar um banco temporário por execução; somente esse banco é limpo e removido. O usuário precisa da permissão `CREATEDB`. As operações de metas e registros ainda não estão disponíveis para executar os demais cenários deste roteiro.
+
+Resultado em 12/10/2026: 39 testes passaram (8 unitários e 31 de integração), inclusive em uma instalação em pasta limpa.

@@ -29,7 +29,7 @@ Cada integrante implementa todas as camadas de sua funcionalidade. Pessoa 1 coor
 - Criar o repositório público do Minha Rotina, adicionar os três colaboradores e fixar versões compatíveis das ferramentas.
 - Configurar TypeScript, Fastify, Zod, Drizzle, PostgreSQL e variáveis em `.env.example`.
 - Definir integração de Zod e OpenAPI/Swagger UI; implementar erros com `message` e `metadata.fields`, conforme adaptação aprovada pelo professor e informada por Felipe.
-- Preparar o workspace com `apps/api`, `packages/biome` e `packages/tsconfig`; criar schemas, migrations, modelos, contratos de repositório, casos de uso, controllers, factories e schemas HTTP conforme a [estrutura de pastas](../architecture/project-structure.md). Documentar responsabilidades e fornecer dependências dos casos de uso por construtor.
+- Preparar um backend único, com `src/`, `test/`, `drizzle/` e configurações na raiz; criar schemas, migrations, modelos, contratos de repositório, casos de uso, controllers, factories e schemas HTTP conforme a [estrutura de pastas](../architecture/project-structure.md). Documentar responsabilidades e fornecer dependências dos casos de uso por construtor.
 
 Prova de conclusão: cada integrante sobe o banco e a API e aplica as migrations em um banco vazio.
 
@@ -71,3 +71,13 @@ Scripts propostos: `dev`, `build`, `start`, `db:generate`, `db:migrate` e `test`
 ## Fora desta etapa
 
 Login, frontend, edição ou exclusão de registros, alteração de alvo/unidade na mesma meta, notificações, recomendações clínicas e integrações externas.
+
+## Progresso em 12/10/2026
+
+- Dependências instaladas, com lockfile versionado.
+- TypeScript, Biome, Vitest, Fastify/Zod e Swagger configurados na raiz.
+- PostgreSQL via Compose e migrations das três tabelas implementados.
+- POST e GETs de participantes implementados com paginação, normalização, `400` e `404`.
+- Testes unitários e HTTP com PostgreSQL temporário cobrindo a API simples.
+- Metas, registros e progresso diário continuam pendentes na camada de aplicação/HTTP.
+- Repositório criado como privado; visibilidade pública e acesso dos outros integrantes ainda pendentes.
