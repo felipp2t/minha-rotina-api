@@ -15,6 +15,7 @@ describe('Get participant', () => {
     )
 
     await repository.create(participant)
+
     const result = await new GetParticipantUseCase(repository).execute(
       participant.id.toString(),
     )

@@ -2,7 +2,7 @@
 
 Backend para acompanhamento de hábitos saudáveis, desenvolvido como projeto da disciplina de Backend (Engenharia de Software), no tema **Saúde e Bem-Estar**.
 
-**Status:** configuração, PostgreSQL e API de participantes implementados. Metas, registros e progresso diário ainda estão em planejamento.
+**Status:** configuração, PostgreSQL, API de participantes, criação e consulta de metas (R5 e issue #2) e cadastro de registros de prática (R2 e R3) implementados. Encerramento de metas, histórico de registros e progresso diário permanecem planejados.
 
 ## Problema e público
 
@@ -94,7 +94,7 @@ URL base local: `http://localhost:3333`.
 | GET | `/goals/{goalId}/records/{id}` | Buscar um registro da meta |
 | GET | `/goals/{id}/progress?date=AAAA-MM-DD` | Consultar progresso diário |
 
-As três rotas de participantes estão implementadas, com `400` para campos inválidos ou e-mail duplicado e `404` para participante inexistente. As demais rotas permanecem planejadas. Exemplos de JSON e respostas estão no [contrato da API](docs/contrato-da-api.md).
+As três rotas de participantes estão implementadas, com `400` para campos inválidos ou e-mail duplicado e `404` para participante inexistente. `POST /goals/{id}/records` está implementada, com `400` para campos inválidos e violações de R2/R3 e `404` para meta inexistente. `POST /goals` está implementada, com `201` e o DTO público, `400` para entradas inválidas ou duplicatas não encerradas e `404` para participante inexistente. `GET /goals/{id}` e `GET /participants/{id}/goals` estão implementadas, com `400` para UUIDs e parâmetros inválidos e `404` para meta ou participante inexistente. As demais rotas permanecem planejadas. Exemplos de JSON e respostas estão no [contrato da API](docs/contrato-da-api.md).
 
 As três listagens aceitam `page` e `limit` (padrões 1 e 20, máximo de 100 itens por página) e retornam `data` e `pagination` com os totais.
 
@@ -169,6 +169,67 @@ PRs para `main` e `develop` exigem o check `Backend checks` aprovado e a branch 
 
 Os casos de uso recebem o contrato de Repository por construtor e retornam falhas esperadas por `Either`. Os controllers devolvem DTOs explícitos. A unicidade de e-mail também é garantida pelo banco; conflitos em cadastros simultâneos retornam `400`.
 
+## Mapa da implementação de registros de prática
+
+| Responsabilidade | Arquivo em `src/` |
+|---|---|
+| Modelos de domínio | `domain/habits/enterprise/entities/practice-record.ts`, `habit-goal.ts` |
+| Data de hoje em São Paulo | `domain/habits/enterprise/services/today-in-sao-paulo.ts` |
+| Contratos de persistência | `domain/habits/application/repositories/practice-record-repository.ts`, `habit-goal-repository.ts` |
+| Caso de uso / Service (R2 e R3) | `domain/habits/application/use-cases/create-practice-record.ts` |
+| Erros de domínio | `domain/habits/application/use-cases/errors/habit-goal-not-found-error.ts`, `habit-goal-closed-error.ts`, `invalid-practice-date-error.ts` |
+| Repositories PostgreSQL | `infra/db/drizzle/repositories/practice-record-repository.ts`, `habit-goal-repository.ts` |
+| Mappers de persistência | `infra/db/drizzle/mappers/drizzle-practice-record-mapper.ts`, `drizzle-habit-goal-mapper.ts` |
+| DTOs e conversão pública | `infra/http/schemas/practice-record.schema.ts` |
+| Controller | `infra/http/controllers/create-practice-record.controller.ts` |
+| Composição por construtor | `infra/http/factories/make-create-practice-record-use-case.ts` |
+
+O caso de uso busca a meta e aplica as regras: meta inexistente (`404`), meta encerrada (R3) e data fora do intervalo entre o início da meta e hoje em `America/Sao_Paulo` (R2), inclusive para metas com início futuro. Os testes fixam a data do sistema para verificar os limites sem depender do dia da execução.
+
+Para garantir R3 também numa corrida com o encerramento, `DrizzlePracticeRecordRepository.create` lê a meta aberta com `SELECT ... FOR SHARE` na mesma transação do `INSERT` e retorna `false` se ela já estiver encerrada, como o cadastro de participantes faz com e-mails duplicados. O encerramento só precisa atualizar `closed_at` com um `UPDATE` na linha da meta. O [manual do registro de prática](docs/implementation/manual-registro-de-pratica.md) explica o fluxo completo.
+
+## Implementação da consulta e listagem de metas (issue #2)
+
+- `GET /goals/{id}` devolve o DTO público, inclusive de metas encerradas ou com início futuro. Meta inexistente retorna `404`.
+- `GET /participants/{id}/goals` verifica se o participante existe (`404`) e lista somente suas metas, incluindo encerradas e futuras. Ordena por nome e UUID crescentes antes de aplicar a paginação.
+- `page` e `limit` seguem os padrões 1 e 20; `limit` permite de 1 a 100. UUIDs, parâmetros inválidos e queries desconhecidas retornam `400`, com `message` e `metadata.fields` e sem status no corpo.
+- A resposta da listagem contém `data` e `pagination` (`page`, `limit`, `total`, `totalPages`). Páginas além da última retornam uma lista vazia e os totais reais. Sem metas, `totalPages` é zero.
+- O Repository Drizzle conta e lê a página na mesma transação somente de leitura com isolamento `repeatable read`, preservando a consistência dos totais. Não foram alterados schemas nem migrations do banco.
+- A entidade, o mapper e o DTO da issue #1 foram reutilizados. Novos casos de uso, factories, controllers e schemas seguem a organização de participantes. As rotas são registradas em `buildApp` e em `openapi.json`.
+- Testes dos casos de uso ficam junto às implementações. Testes HTTP com repositórios em memória estão em `src/infra/http/controllers/goal-queries.controller.spec.ts`; os 22 testes HTTP com PostgreSQL estão em `test/integrations/goal-queries.integration.spec.ts`.
+
+### Validação da issue #2
+
+- `pnpm typecheck`, `pnpm lint`, `pnpm build` e `pnpm openapi`: aprovados.
+- `pnpm test:unit`: 84 testes aprovados, incluindo consulta/listagem via HTTP com repositórios em memória.
+- `pnpm test:integration`: tentado, mas as quatro suítes não conseguiram inicializar por ausência de `TEST_DATABASE_URL`/`DATABASE_URL` e PostgreSQL disponível neste ambiente. Os testes de integração foram adicionados, mas a verificação real no PostgreSQL está pendente.
+- Para finalizar a verificação, configure PostgreSQL conforme “Como executar” e execute `pnpm test:integration`. A URL de testes deve permitir criar e remover bancos temporários isolados. Não considere a issue totalmente verificada antes de essa execução passar.
+
+## Implementação da criação de metas (issue #1)
+
+`POST /goals` segue o contrato da API e a organização de participantes:
+
+- `HabitGoal` em `src/domain/habits/enterprise/entities/habit-goal.ts` herda `Entity`, usa `UniqueEntityID` e mantém alvo e unidade sem setters.
+- `CreateHabitGoalUseCase` verifica o participante, normaliza o nome e aplica R5.
+- `HabitGoalRepository` em `src/domain/habits/application/repositories/habit-goal-repository.ts` oferece `create` e `findById`.
+- `DrizzleHabitGoalRepository` e `DrizzleHabitGoalMapper` fazem a persistência. A criação usa `ON CONFLICT` com o índice parcial `habit_goals_active_unique`, que impede duplicatas e arbitra requisições concorrentes numa única operação.
+- Schema/DTO, controller e factory ficam em `infra/http`. `normalizedName` é interno; o DTO contém apenas `id`, `participantId`, `name`, `dailyTarget`, `unit`, `startDate` e `closedAt`.
+- Corpo e query são estritos. O alvo aceita inteiros de 1 a 2.147.483.647, limite da coluna PostgreSQL existente. Datas válidas no formato `AAAA-MM-DD`, a partir do ano 0001, podem ser passadas, atuais ou futuras.
+- Testes unitários estão junto ao caso de uso e testes HTTP em `test/integrations/habit-goals.integration.spec.ts`.
+
+### Validação desta alteração
+
+- `pnpm typecheck`, `pnpm lint`, `pnpm build` e `pnpm openapi`: aprovados.
+- `pnpm test:unit`: 57 testes aprovados, incluindo testes HTTP com repositórios em memória.
+- `pnpm test:integration`: execução bloqueada pela ausência de `TEST_DATABASE_URL`/`DATABASE_URL` e de PostgreSQL disponível no ambiente de edição. Os 39 testes de metas com PostgreSQL foram adicionados, mas sua execução real, especialmente o conflito concorrente do índice parcial, ainda precisa ser confirmada localmente ou no CI.
+
+Para concluir essa validação na máquina de desenvolvimento, siga “Como executar” para subir o PostgreSQL e execute `pnpm test:integration`. Não considere a issue totalmente verificada antes desse resultado.
+
+### Contrato disponível para integração com os registros (Renan)
+
+A entidade e o contrato acima são os pontos compartilhados. Para consultar a meta, injete `HabitGoalRepository` no caso de uso dos registros e chame `findById(goalId)`: retorna `HabitGoal | null`, incluindo metas encerradas. `closedAt` permanece `Date | null` no domínio e `isClosed` permanece disponível, conforme a implementação dos registros. O chamador pode consultar `startDate`, `unit`, `dailyTarget` e `closedAt` para aplicar as regras dos registros. IDs são `UniqueEntityID` no domínio; use `.toString()` ao montar DTOs. A factory pode usar `new DrizzleHabitGoalRepository(getDatabase())`.
+
+Nenhum schema ou migration existente foi alterado. Consulta HTTP e encerramento foram implementados nas issues #2 e #3.
 
 ## Situação da entrega
 
@@ -179,9 +240,9 @@ Os casos de uso recebem o contrato de Repository por construtor e retornam falha
 | Contrato da API | Documentado, com detalhes técnicos propostos |
 | Divisão de tarefas e roteiro de testes | Documentados |
 | Banco e migrations | Três tabelas criadas, com constraints e chaves estrangeiras |
-| Estrutura do código | Participantes implementados; metas e registros pendentes |
+| Estrutura do código | Participantes, criação/consulta/encerramento de metas, registros e progresso diário implementados |
 | API simples | Cadastro, listagem paginada e busca de participantes implementados e testados |
-| Regras R1–R5 pela API | Pendentes; constraints de banco preparadas |
+| Regras R1–R5 pela API | R2 e R3 no cadastro de registros; R5 na criação de metas; R1 no encerramento; R4 no progresso diário |
 | Autoavaliação | Ficha criada; verificação da implementação pendente |
 
 ## Prazos
@@ -210,3 +271,19 @@ Os arquivos originais foram preservados em `docs/enunciado/`:
 - [Enunciado do trabalho](docs/enunciado/README.md).
 - [Critérios de avaliação](docs/enunciado/AVALIACAO.md).
 - [Orientações de arquitetura](docs/enunciado/ARQUITETURA.md).
+
+## Implementação do encerramento de metas (issue #3)
+
+- `POST /goals/{id}/closure` retorna `200` com o DTO da meta. O servidor PostgreSQL determina `closedAt` após obter o bloqueio da linha. Repetições, inclusive concorrentes, mantêm exatamente o primeiro instante.
+- UUID inválido ou parâmetros de consulta retornam `400`; meta inexistente retorna `404`, com `message` e `metadata.fields`.
+- O contrato `HabitGoalRepository.close` encapsula a operação atômica. Caso de uso, factory e controller seguem as camadas existentes. Alvo, unidade e registros históricos são preservados; não foram criadas rotas para editá-los.
+- A transação usa `SELECT ... FOR UPDATE`, incompatível com o `FOR SHARE` já usado pelo cadastro de registros. Uma gravação anterior termina antes do encerramento; uma gravação posterior aguarda e verifica novamente se a meta está aberta.
+- O índice parcial existente permite criar outra meta com o mesmo nome/unidade após encerrar a anterior, inclusive com outro alvo. Nenhum schema ou migration foi alterado.
+- Testes unitários e HTTP em memória acompanham as implementações; `test/integrations/goal-closure.integration.spec.ts` verifica o histórico, concorrência, bloqueios, nova meta e erros no PostgreSQL.
+
+### Validação da issue #3
+
+- `pnpm typecheck`, `pnpm lint`, `pnpm build` e `pnpm openapi`: aprovados.
+- `pnpm test:unit`: 111 testes aprovados, incluindo encerramento e respostas HTTP em memória.
+- `pnpm test:integration`: tentado; as suítes não inicializaram porque `TEST_DATABASE_URL`/`DATABASE_URL` não está configurada e não há PostgreSQL disponível. Os oito testes novos com PostgreSQL estão pendentes de execução.
+- Execute `pnpm test:integration` com PostgreSQL configurado antes de considerar a issue totalmente verificada, especialmente os bloqueios e encerramentos concorrentes.

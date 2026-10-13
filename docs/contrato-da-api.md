@@ -1,6 +1,6 @@
 # Minha Rotina: contrato da API
 
-Status: rotas de participantes implementadas e testadas; metas, registros e progresso permanecem planejados.
+Status: rotas de participantes, `POST /goals`, `GET /goals/{id}`, `GET /participants/{id}/goals`, `POST /goals/{id}/records`, `GET /goals/{id}/records`, `GET /goals/{goalId}/records/{id}` e `GET /goals/{id}/progress` implementadas e testadas; `POST /goals/{id}/closure` também implementado.
 
 ## Convenções
 
@@ -15,7 +15,7 @@ Os cadastros de participantes, metas e registros retornam HTTP `201` com o JSON 
 Aplicável a `GET /participants`, `GET /participants/{id}/goals` e `GET /goals/{id}/records`.
 
 - Parâmetros opcionais: `page` (inteiro positivo, padrão 1) e `limit` (inteiro entre 1 e 100, padrão 20).
-- Parâmetros inválidos retornam `400`, com o nome do parâmetro em `metadata.fields`. Na implementação de participantes, `page` e o offset calculado devem estar dentro do intervalo de inteiros seguros do JavaScript.
+- Parâmetros inválidos retornam `400`, com o nome do parâmetro em `metadata.fields`. Nas listagens de participantes e metas, `page` e o offset calculado devem estar dentro do intervalo de inteiros seguros do JavaScript.
 - `data` contém os itens da página, respeitando a ordenação definida para a rota antes do recorte.
 - `pagination` contém `page`, `limit`, `total` e `totalPages`; `total` conta todos os itens da listagem correspondente, não apenas a página.
 - `totalPages = ceil(total / limit)`; se não houver itens, será zero.
@@ -98,7 +98,7 @@ Saída `201`:
 {"id":"189bc8fc-9e93-4c18-a48e-d11fd7ad4b02","participantId":"72f43a86-cf1a-4d20-b60a-3a9c92e5d8f1","name":"Caminhar","dailyTarget":30,"unit":"MINUTES","startDate":"2026-10-09","closedAt":null}
 ```
 
-Unidades: `ML`, `MINUTES`, `REPETITIONS`. O nome deve conter de 1 a 100 caracteres após remover espaços nas extremidades; o valor sem esses espaços é armazenado e retornado, preservando maiúsculas e minúsculas para exibição. Alvo inteiro positivo e data válida. Campos inválidos retornam `400`. Início passado ou futuro é permitido. Participante inexistente retorna `404`; meta duplicada não encerrada retorna `400` (R5).
+Unidades: `ML`, `MINUTES`, `REPETITIONS`. O nome deve conter de 1 a 100 caracteres após remover espaços nas extremidades; o valor sem esses espaços é armazenado e retornado, preservando maiúsculas e minúsculas para exibição. Alvo inteiro positivo até 2.147.483.647 (limite da coluna `integer` existente) e data válida no formato `AAAA-MM-DD`, a partir do ano 0001. Campos inválidos retornam `400`. Início passado ou futuro é permitido. Participante inexistente retorna `404`; meta duplicada não encerrada retorna `400` (R5).
 
 ### GET /participants/{id}/goals
 
@@ -122,7 +122,7 @@ Sem corpo de entrada. Saída `200`:
 {"id":"189bc8fc-9e93-4c18-a48e-d11fd7ad4b02","participantId":"72f43a86-cf1a-4d20-b60a-3a9c92e5d8f1","name":"Caminhar","dailyTarget":30,"unit":"MINUTES","startDate":"2026-10-09","closedAt":"2026-10-10T15:00:00Z"}
 ```
 
-O servidor determina o instante de encerramento. Comportamento confirmado: repetir a operação mantém o primeiro instante e retorna a meta encerrada com `200`. Meta inexistente retorna `404`. Alvo e unidade não possuem rota de alteração.
+O servidor determina o instante de encerramento. Comportamento confirmado: repetir a operação mantém o primeiro instante e retorna a meta encerrada com `200`. Meta inexistente retorna `404`. UUID inválido e parâmetros de consulta não permitidos retornam `400`. Alvo e unidade não possuem rota de alteração. O encerramento usa uma transação com bloqueio da meta, coordenada com a criação de registros; somente `closedAt` é atualizado.
 
 ## Registros e progresso
 
