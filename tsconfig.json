@@ -15,13 +15,12 @@
     "lib": ["ES2023"],
     "types": ["node"],
     "outDir": "dist",
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@domain/*": ["src/domain/*"],
-      "@core/*": ["src/core/*"],
-      "@infra/*": ["src/infra/*"],
-      "@test/*": ["test/*"]
+      "@domain/*": ["./src/domain/*"],
+      "@core/*": ["./src/core/*"],
+      "@infra/*": ["./src/infra/*"],
+      "@test/*": ["./test/*"]
     },
     "strictNullChecks": true,
     "rootDir": "."
