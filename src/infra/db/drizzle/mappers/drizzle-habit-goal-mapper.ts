@@ -3,6 +3,7 @@ import { UniqueEntityID } from '../../../../core/entities/unique-entity-id.js'
 import { HabitGoal } from '../../../../domain/habits/enterprise/entities/habit-goal.js'
 import type { habitGoals } from '../schema/habit-goals.js'
 
+// Converts habit goal rows to domain entities and domain entities to insert values.
 export class DrizzleHabitGoalMapper {
   static toDomain(row: InferSelectModel<typeof habitGoals>): HabitGoal {
     return HabitGoal.create(
