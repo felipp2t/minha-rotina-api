@@ -1,6 +1,6 @@
 # Planejamento do Minha Rotina
 
-Status: rascunho; decisões confirmadas na conversa, com questões em aberto.
+Status: requisitos e decisões da Etapa 1; a implementação atual está resumida no [README](../../README.md), e a conferência acadêmica permanece em aberto.
 
 ## Contexto da entrega
 
@@ -63,7 +63,7 @@ Pessoas que desejam manter hábitos saudáveis precisam acompanhar quanto pratic
 
 A unicidade de e-mail é uma regra adicional de cadastro, aplicada pelo caso de uso e garantida no banco. Ela não substitui as três regras específicas do acompanhamento de hábitos exigidas para a demonstração.
 
-As regras estão planejadas, ainda não implementadas. As violações de R2, R3 e R5 deverão retornar HTTP 400 com mensagem explicativa. Essas três regras constituem o mínimo de regras impeditivas a demonstrar na entrega. A decisão de manter alvo e unidade fixos será refletida nas operações disponíveis na API.
+R1–R5 estão implementadas nas operações da API. Violações de R2, R3 e R5 retornam HTTP 400 com mensagem explicativa; repetir o encerramento retorna sucesso e preserva o primeiro instante. Essas regras e seus cenários de validação estão detalhados no [roteiro de testes](../testing/roteiro-de-testes.md).
 
 ## Exemplo de uso
 
@@ -71,7 +71,6 @@ Uma pessoa cria a meta “Caminhar”, com alvo diário de 30 minutos. Registra 
 
 ## Questões em aberto
 
-- Fechar detalhes técnicos dos campos e contratos; erros definidos com `message` e `metadata.fields`, um array de objetos contendo `field` e `message`.
 - Horários das entregas de 15/10 e 22/10.
 
 ## Divisão acordada

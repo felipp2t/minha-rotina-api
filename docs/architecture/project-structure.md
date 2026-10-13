@@ -1,6 +1,6 @@
 # Estrutura do projeto
 
-Status: backend único configurado na raiz; participantes implementados e banco criado para as três entidades.
+Status: backend único configurado na raiz; participantes, metas, registros e progresso diário implementados.
 
 ## Organização
 
@@ -78,7 +78,7 @@ minha-rotina-api/
 | `test/infra/db/` | Criação e remoção de bancos temporários de teste |
 | `docs/` | Planejamento, contratos e evidências de implementação |
 
-Os caminhos de código nas tabelas abaixo são relativos a `src/`. Participantes estão implementados em todas as camadas. Para metas e registros, os schemas e migrations já existem; modelos, casos de uso, repositórios e HTTP permanecem planejados. Pastas de serviços de domínio e scripts auxiliares serão criadas quando houver conteúdo.
+Os caminhos de código nas tabelas abaixo são relativos a `src/`. Participantes, metas e registros estão implementados em todas as camadas. O progresso diário é calculado a partir dos registros, sem uma entidade ou tabela própria. Pastas de serviços de domínio e scripts auxiliares serão criadas quando houver conteúdo.
 
 ## Responsabilidades e nomes
 

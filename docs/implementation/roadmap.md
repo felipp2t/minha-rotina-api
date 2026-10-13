@@ -1,6 +1,6 @@
 # Minha Rotina: plano de implementação e divisão do grupo
 
-Status: divisão e dias de entrega confirmados; sequência proposta. Mês e ano considerados pelo contexto da sessão: outubro de 2026. Horários não informados. Responsáveis associados na ordem em que os nomes foram informados.
+Status: plano elaborado antes da implementação; as funcionalidades foram integradas à `main` pelo PR #17. Mês e ano considerados pelo contexto da sessão: outubro de 2026. Horários não informados. Responsáveis associados na ordem em que os nomes foram informados.
 
 ## Marcos de entrega
 
@@ -64,15 +64,17 @@ Reservar o último dia disponível para integração e ensaio, sem adicionar fun
 | 2 min | Camadas e localização das regras | Os três, cada um em sua funcionalidade |
 | 3 min | API simples, `400`, `404` e regras barrando pedidos | Os três |
 
-## Comandos a preparar
+## Comandos previstos no planejamento
 
-Scripts propostos: `dev`, `build`, `start`, `db:generate`, `db:migrate` e `test`. Os comandos de execução só devem entrar no README como funcionais depois de implementados e verificados.
+O plano previa os scripts `dev`, `build`, `start`, `db:generate`, `db:migrate` e `test`. Eles estão implementados no `package.json`; os comandos atuais e requisitos de execução estão no README.
 
 ## Fora desta etapa
 
 Login, frontend, edição ou exclusão de registros, alteração de alvo/unidade na mesma meta, notificações, recomendações clínicas e integrações externas.
 
-## Progresso em 12/10/2026
+## Registro histórico: progresso em 12/10/2026
+
+Este retrato registra o estado naquela data, antes das implementações de metas, registros e progresso. Não representa o status atual do projeto; confira o [README](../../README.md) e o [roteiro de testes](../testing/roteiro-de-testes.md).
 
 - Dependências instaladas, com lockfile versionado.
 - TypeScript, Biome, Vitest, Fastify/Zod e Swagger configurados na raiz.
