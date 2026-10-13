@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type { PracticeRecord } from '../../../domain/habits/enterprise/entities/practice-record.js'
+import { participantListQuerySchema } from './participant.schema.js'
 
 // Largest value of a PostgreSQL `integer` column.
 const MAX_QUANTITY = 2_147_483_647
@@ -7,6 +8,12 @@ const MAX_QUANTITY = 2_147_483_647
 export const goalIdParamsSchema = z.strictObject({
   id: z.uuid('Informe um UUID válido.'),
 })
+export const practiceRecordParamsSchema = z.strictObject({
+  goalId: z.uuid('Informe um UUID válido.'),
+  id: z.uuid('Informe um UUID válido.'),
+})
+// Same pagination rules as the participant listing (page from 1, limit 1 to 100).
+export const practiceRecordListQuerySchema = participantListQuerySchema
 export const createPracticeRecordBodySchema = z.strictObject({
   date: z.iso.date('Informe uma data válida no formato AAAA-MM-DD.'),
   quantity: z
@@ -20,6 +27,15 @@ export const practiceRecordSchema = z.object({
   goalId: z.uuid(),
   date: z.iso.date(),
   quantity: z.number().int(),
+})
+export const practiceRecordListSchema = z.object({
+  data: z.array(practiceRecordSchema),
+  pagination: z.object({
+    page: z.number().int(),
+    limit: z.number().int(),
+    total: z.number().int(),
+    totalPages: z.number().int(),
+  }),
 })
 
 export type CreatePracticeRecordDto = z.infer<
