@@ -10,6 +10,7 @@ describe('Get habit goal', () => {
     'returns active and closed goals: %s',
     async (closedAt) => {
       const repository = new InMemoryHabitGoalRepository()
+
       const goal = HabitGoal.create({
         participantId: new UniqueEntityID(),
         name: 'Water',
@@ -18,18 +19,23 @@ describe('Get habit goal', () => {
         startDate: '2099-01-01',
         closedAt,
       })
+
       await repository.create(goal)
+
       const result = await new GetHabitGoalUseCase(repository).execute(
         goal.id.toString(),
       )
+
       expect(result.isRight()).toBe(true)
       expect(result.value).toBe(goal)
     },
   )
+
   it('returns not found for an unknown goal', async () => {
     const result = await new GetHabitGoalUseCase(
       new InMemoryHabitGoalRepository(),
     ).execute('missing')
+
     expect(result.isLeft()).toBe(true)
     expect(result.value).toBeInstanceOf(HabitGoalNotFoundError)
   })
