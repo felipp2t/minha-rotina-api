@@ -23,11 +23,14 @@ export class GetPracticeRecordUseCase {
   }: GetPracticeRecordInput): Promise<
     Either<HabitGoalNotFoundError | PracticeRecordNotFoundError, PracticeRecord>
   > {
-    if (!(await this.habitGoalRepository.findById(goalId))) {
+    const goal = await this.habitGoalRepository.findById(goalId)
+
+    if (!goal) {
       return left(new HabitGoalNotFoundError())
     }
 
     const record = await this.practiceRecordRepository.findById(id)
+
     if (!record || record.goalId.toString() !== goalId) {
       return left(new PracticeRecordNotFoundError())
     }

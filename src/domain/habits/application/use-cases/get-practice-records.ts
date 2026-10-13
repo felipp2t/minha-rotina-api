@@ -28,7 +28,9 @@ export class GetPracticeRecordsUseCase {
   }: GetPracticeRecordsInput): Promise<
     Either<HabitGoalNotFoundError, GetPracticeRecordsOutput>
   > {
-    if (!(await this.habitGoalRepository.findById(goalId))) {
+    const goal = await this.habitGoalRepository.findById(goalId)
+
+    if (!goal) {
       return left(new HabitGoalNotFoundError())
     }
 
