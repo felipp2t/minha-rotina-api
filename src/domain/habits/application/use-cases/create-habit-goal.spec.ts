@@ -15,15 +15,21 @@ let goals: InMemoryHabitGoalRepository
 let participants: InMemoryParticipantRepository
 let useCase: CreateHabitGoalUseCase
 let input: CreateHabitGoalInput
+
 beforeEach(async () => {
   goals = new InMemoryHabitGoalRepository()
+
   participants = new InMemoryParticipantRepository()
+
   const participant = Participant.create({
     name: 'Ana',
     email: 'ana@example.com',
   })
+
   await participants.create(participant)
+
   useCase = new CreateHabitGoalUseCase(participants, goals)
+
   input = {
     participantId: participant.id.toString(),
     name: ' Caminhar ',
@@ -36,9 +42,12 @@ beforeEach(async () => {
 describe('Create habit goal', () => {
   it('creates a trimmed goal with a UUID, normalized name and fixed measurements', async () => {
     const result = await useCase.execute(input)
+
     expect(result.isRight()).toBe(true)
     expect(goals.items).toHaveLength(1)
+
     const goal = goals.items[0]
+
     expect(goal).toBeInstanceOf(HabitGoal)
     expect(goal?.id.toString()).toMatch(/^[0-9a-f-]{36}$/)
     expect(goal?.participantId.toString()).toBe(input.participantId)
@@ -49,27 +58,36 @@ describe('Create habit goal', () => {
     expect(goal?.startDate).toBe(input.startDate)
     expect(goal?.closedAt).toBeNull()
   })
+
   it('rejects an unknown participant without persisting', async () => {
     const result = await useCase.execute({
       ...input,
       participantId: new UniqueEntityID().toString(),
     })
+
     expect(result.value).toBeInstanceOf(ParticipantNotFoundError)
     expect(goals.items).toHaveLength(0)
   })
+
   it('rejects normalized duplicates including future starts', async () => {
     await useCase.execute({ ...input, startDate: '2099-01-01' })
+
     const result = await useCase.execute({ ...input, name: ' CAMINHAR ' })
+
     expect(result.value).toBeInstanceOf(HabitGoalAlreadyExistsError)
     expect(goals.items).toHaveLength(1)
   })
+
   it('allows different units and different participants', async () => {
     await useCase.execute(input)
+
     expect(
       (await useCase.execute({ ...input, unit: 'REPETITIONS' })).isRight(),
     ).toBe(true)
+
     const other = Participant.create({ name: 'Bia', email: 'bia@example.com' })
     await participants.create(other)
+
     expect(
       (
         await useCase.execute({ ...input, participantId: other.id.toString() })
@@ -77,6 +95,7 @@ describe('Create habit goal', () => {
     ).toBe(true)
     expect(goals.items).toHaveLength(3)
   })
+
   it('allows reuse of the name and unit after closure', async () => {
     goals.items.push(
       HabitGoal.create({
@@ -85,11 +104,14 @@ describe('Create habit goal', () => {
         closedAt: new Date('2026-10-10T15:00:00Z'),
       }),
     )
+
     expect((await useCase.execute(input)).isRight()).toBe(true)
     expect(goals.items).toHaveLength(2)
   })
+
   it('translates a duplicate reported by persistence', async () => {
     vi.spyOn(goals, 'create').mockResolvedValue(false)
+
     expect((await useCase.execute(input)).value).toBeInstanceOf(
       HabitGoalAlreadyExistsError,
     )

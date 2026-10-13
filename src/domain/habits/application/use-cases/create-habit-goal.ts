@@ -32,13 +32,16 @@ export class CreateHabitGoalUseCase {
     if (!(await this.participantRepository.findById(input.participantId))) {
       return left(new ParticipantNotFoundError())
     }
+
     const goal = HabitGoal.create({
       ...input,
       participantId: new UniqueEntityID(input.participantId),
     })
+
     if (!(await this.habitGoalRepository.create(goal))) {
       return left(new HabitGoalAlreadyExistsError())
     }
+
     return right(goal)
   }
 }

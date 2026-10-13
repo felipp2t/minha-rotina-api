@@ -17,21 +17,27 @@ export class HabitGoal extends Entity<HabitGoalProps> {
   get participantId() {
     return this.props.participantId
   }
+
   get name() {
     return this.props.name
   }
+
   get normalizedName() {
     return this.props.name.trim().toLowerCase()
   }
+
   get dailyTarget() {
     return this.props.dailyTarget
   }
+
   get unit() {
     return this.props.unit
   }
+
   get startDate() {
     return this.props.startDate
   }
+
   get closedAt() {
     return this.props.closedAt
   }

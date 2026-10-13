@@ -3,6 +3,7 @@ import type { HabitGoal } from '../../src/domain/habits/enterprise/entities/habi
 
 export class InMemoryHabitGoalRepository implements HabitGoalRepository {
   items: HabitGoal[] = []
+
   async create(goal: HabitGoal) {
     if (
       this.items.some(
@@ -12,11 +13,13 @@ export class InMemoryHabitGoalRepository implements HabitGoalRepository {
           item.unit === goal.unit &&
           item.closedAt === null,
       )
-    )
+    ) {
       return false
+    }
     this.items.push(goal)
     return true
   }
+
   async findById(id: string) {
     return this.items.find((goal) => goal.id.toString() === id) ?? null
   }

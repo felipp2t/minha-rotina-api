@@ -28,10 +28,12 @@ beforeAll(async () => {
   setDatabase(testDatabase.database)
   await app.ready()
 })
+
 beforeEach(async () => {
   vi.restoreAllMocks()
   await testDatabase.database.db.execute(sql`TRUNCATE participants CASCADE`)
 })
+
 afterAll(async () => {
   vi.restoreAllMocks()
   await app.close()
@@ -70,6 +72,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
     expect(stored).toBeInstanceOf(Participant)
     expect(stored && toParticipantDto(stored)).toEqual(participant)
   })
+
   it('rejects an email duplicate after normalization', async () => {
     await createParticipant()
     const response = await createParticipant('Outra', ' ANA@EXAMPLE.COM ')
@@ -80,6 +83,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
     const list = await app.inject({ method: 'GET', url: '/participants' })
     expect(list.json().pagination.total).toBe(1)
   })
+
   it('permits exactly one of two concurrent duplicate registrations', async () => {
     const responses = await Promise.all([
       createParticipant(),
@@ -91,6 +95,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
     const list = await app.inject({ method: 'GET', url: '/participants' })
     expect(list.json().pagination.total).toBe(1)
   })
+
   it.each([
     { name: '', email: 'ana@example.com', field: 'name' },
     { name: '   ', email: 'ana@example.com', field: 'name' },
@@ -105,9 +110,11 @@ describe('Participant HTTP API with PostgreSQL', () => {
       message: expect.any(String),
     })
   })
+
   it('accepts a name at the 100-character boundary', async () => {
     expect((await createParticipant('a'.repeat(100))).statusCode).toBe(201)
   })
+
   it('rejects missing fields', async () => {
     const response = await app.inject({
       method: 'POST',
@@ -122,6 +129,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
         .sort(),
     ).toEqual(['email', 'name'])
   })
+
   it('reports every unknown body field', async () => {
     const response = await app.inject({
       method: 'POST',
@@ -144,6 +152,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
       },
     })
   })
+
   it('rejects malformed JSON with the standard error contract', async () => {
     const response = await app.inject({
       method: 'POST',
@@ -157,6 +166,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
       metadata: { fields: [] },
     })
   })
+
   it('returns 400 for malformed UUID and 404 for a missing valid UUID', async () => {
     const invalid = await app.inject({
       method: 'GET',
@@ -177,6 +187,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
       metadata: { fields: [] },
     })
   })
+
   it('orders by name and UUID before paginating with complete totals', async () => {
     const rows = [
       {
@@ -214,6 +225,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
       pagination: { page: 5, limit: 2, total: 3, totalPages: 2 },
     })
   })
+
   it('returns default pagination with zero totalPages for an empty database', async () => {
     const response = await app.inject({ method: 'GET', url: '/participants' })
     expect(response.statusCode).toBe(200)
@@ -222,6 +234,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
       pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
     })
   })
+
   it.each([
     'page=0',
     'page=-1',
@@ -239,6 +252,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
     expect(response.statusCode).toBe(400)
     expect(response.json().metadata.fields.length).toBeGreaterThan(0)
   })
+
   it.each(['GET', 'POST'])(
     'rejects unknown query parameters for %s',
     async (method) => {
@@ -255,6 +269,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
       ])
     },
   )
+
   it('rejects query parameters on participant lookup', async () => {
     const response = await app.inject({
       method: 'GET',
@@ -262,6 +277,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
     })
     expect(response.statusCode).toBe(400)
   })
+
   it('hides unexpected database errors', async () => {
     vi.spyOn(
       DrizzleParticipantRepository.prototype,
@@ -274,17 +290,20 @@ describe('Participant HTTP API with PostgreSQL', () => {
       metadata: { fields: [] },
     })
   })
+
   it('serves Swagger UI and documents the implemented routes', async () => {
     const response = await app.inject({ method: 'GET', url: '/docs/' })
     expect(response.statusCode).toBe(200)
     expect(app.swagger().paths).toHaveProperty('/participants')
     expect(app.swagger().paths).toHaveProperty('/participants/{id}')
   })
+
   it('uses the error contract for unknown routes', async () => {
     const response = await app.inject({ method: 'GET', url: '/missing' })
     expect(response.statusCode).toBe(404)
     expect(response.json().metadata.fields).toEqual([])
   })
+
   it('enforces normalized email and name constraints in PostgreSQL', async () => {
     await expect(
       testDatabase.database.db
@@ -297,6 +316,7 @@ describe('Participant HTTP API with PostgreSQL', () => {
         .values({ id: randomUUID(), name: ' ', email: 'ana@example.com' }),
     ).rejects.toThrow()
   })
+
   it('creates all planned tables and their foreign keys through migrations', async () => {
     const result = await testDatabase.database.db.execute<{ name: string }>(
       sql`SELECT tablename as name FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename`,

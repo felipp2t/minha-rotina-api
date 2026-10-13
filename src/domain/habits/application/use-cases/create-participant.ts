@@ -16,6 +16,7 @@ export class CreateParticipantUseCase {
     input: CreateParticipantInput,
   ): Promise<Either<ParticipantAlreadyExistsError, Participant>> {
     const email = input.email.trim().toLowerCase()
+
     if (await this.participantRepository.findByEmail(email)) {
       return left(new ParticipantAlreadyExistsError())
     }

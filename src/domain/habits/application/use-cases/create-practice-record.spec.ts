@@ -16,6 +16,7 @@ beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date('2026-10-13T15:00:00Z'))
 })
+
 afterEach(() => {
   vi.useRealTimers()
 })

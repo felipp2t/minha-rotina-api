@@ -29,15 +29,18 @@ beforeAll(async () => {
   setDatabase(testDatabase.database)
   await app.ready()
 })
+
 beforeEach(async () => {
   vi.restoreAllMocks()
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(NOW)
   await testDatabase.database.db.execute(sql`TRUNCATE participants CASCADE`)
 })
+
 afterEach(() => {
   vi.useRealTimers()
 })
+
 afterAll(async () => {
   vi.restoreAllMocks()
   await app.close()

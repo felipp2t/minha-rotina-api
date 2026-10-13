@@ -24,12 +24,14 @@ const app = buildApp()
 let testDatabase: Awaited<ReturnType<typeof createTestDatabase>>
 let participantId: string
 let repository: DrizzleHabitGoalRepository
+
 beforeAll(async () => {
   testDatabase = await createTestDatabase()
   setDatabase(testDatabase.database)
   repository = new DrizzleHabitGoalRepository(testDatabase.database)
   await app.ready()
 })
+
 beforeEach(async () => {
   vi.restoreAllMocks()
   await testDatabase.database.db.execute(sql`TRUNCATE participants CASCADE`)
@@ -40,12 +42,14 @@ beforeEach(async () => {
   })
   participantId = response.json<{ id: string }>().id
 })
+
 afterAll(async () => {
   vi.restoreAllMocks()
   await app.close()
   setDatabase(undefined)
   if (testDatabase) await testDatabase.close()
 })
+
 function payload() {
   return {
     participantId,
@@ -55,6 +59,7 @@ function payload() {
     startDate: '2026-10-09',
   }
 }
+
 function createGoal(overrides: Record<string, unknown> = {}, url = '/goals') {
   return app.inject({
     method: 'POST',
@@ -87,6 +92,7 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
     expect(stored && toHabitGoalDto(stored)).toEqual(goal)
     expect(await repository.findById(randomUUID())).toBeNull()
   })
+
   it.each([
     '2000-01-01',
     new Intl.DateTimeFormat('en-CA', {
@@ -103,6 +109,7 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
       expect((await createGoal({ startDate })).statusCode).toBe(201)
     },
   )
+
   it.each([
     ['name', ''],
     ['name', '   '],
@@ -133,6 +140,7 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
       await testDatabase.database.db.select().from(habitGoals),
     ).toHaveLength(0)
   })
+
   it.each(['participantId', 'name', 'dailyTarget', 'unit', 'startDate'])(
     'rejects missing %s',
     async (field) => {
@@ -150,6 +158,7 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
       })
     },
   )
+
   it.each(['ML', 'MINUTES', 'REPETITIONS'])(
     'accepts unit %s and boundary values',
     async (unit) => {
@@ -166,6 +175,7 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
       ).toBe(201)
     },
   )
+
   it('returns the 404 contract for a missing participant', async () => {
     const response = await createGoal({ participantId: randomUUID() })
     expect(response.statusCode).toBe(404)
@@ -174,6 +184,7 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
       metadata: { fields: [] },
     })
   })
+
   it('reports all unknown fields and query parameters', async () => {
     const body = await createGoal({
       id: randomUUID(),
@@ -194,6 +205,7 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
       { field: 'limit', message: 'Parâmetro não permitido.' },
     ])
   })
+
   it('rejects normalized duplicate future goals but permits different units and participants', async () => {
     expect((await createGoal({ startDate: '2099-01-01' })).statusCode).toBe(201)
     const duplicate = await createGoal({ name: ' CAMINHAR ' })
@@ -217,6 +229,7 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
       (await createGoal({ participantId: other.json().id })).statusCode,
     ).toBe(201)
   })
+
   it('allows reuse after closure and maps closed goals for practice lookup', async () => {
     const first = (await createGoal()).json<HabitGoalDto>()
     await testDatabase.database.db
@@ -229,6 +242,7 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
       await testDatabase.database.db.select().from(habitGoals),
     ).toHaveLength(2)
   })
+
   it('protects simultaneous requests with the PostgreSQL partial unique index', async () => {
     const responses = await Promise.all(
       Array.from({ length: 6 }, () => createGoal({ startDate: '2099-01-01' })),
@@ -240,6 +254,7 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
       await testDatabase.database.db.select().from(habitGoals),
     ).toHaveLength(1)
   })
+
   it('does not translate unrelated database failures into duplicates', async () => {
     vi.spyOn(DrizzleHabitGoalRepository.prototype, 'create').mockRejectedValue(
       new Error('private connection details'),
@@ -251,6 +266,7 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
       metadata: { fields: [] },
     })
   })
+
   it('creates a goal that the existing practice record route can use', async () => {
     const created = await createGoal({ startDate: '2000-01-01' })
     expect(created.statusCode).toBe(201)
@@ -279,6 +295,7 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
     expect(closed.statusCode).toBe(400)
     expect((await repository.findById(goal.id))?.isClosed).toBe(true)
   })
+
   it('documents creation and the public DTO in Swagger', () => {
     const paths = app.swagger().paths
     expect(paths).toHaveProperty('/goals')

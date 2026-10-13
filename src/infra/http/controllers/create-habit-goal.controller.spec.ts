@@ -10,6 +10,7 @@ const { factory } = vi.hoisted(() => ({ factory: vi.fn() }))
 vi.mock('../factories/make-create-habit-goal-use-case.js', () => ({
   makeCreateHabitGoalUseCase: factory,
 }))
+
 afterEach(() => vi.clearAllMocks())
 
 async function setup() {
@@ -68,6 +69,7 @@ describe('Habit goal HTTP validation without a database', () => {
       await app.close()
     }
   })
+
   it.each([
     ['participantId', 'invalid'],
     ['name', '  '],
@@ -105,6 +107,7 @@ describe('Habit goal HTTP validation without a database', () => {
       }
     },
   )
+
   it('rejects missing fields, unknown fields, query parameters and malformed JSON', async () => {
     const { app, body } = await setup()
     try {
@@ -152,6 +155,7 @@ describe('Habit goal HTTP validation without a database', () => {
       await app.close()
     }
   })
+
   it.each(['2000-01-01', '2026-10-13', '2099-01-01', '2024-02-29'])(
     'accepts valid dates: %s',
     async (startDate) => {
