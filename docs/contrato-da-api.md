@@ -1,6 +1,6 @@
 # Minha Rotina: contrato da API
 
-Status: rotas de participantes e de registros (`POST /goals/{id}/records`, `GET /goals/{id}/records` e `GET /goals/{goalId}/records/{id}`) e `GET /goals/{id}/progress` implementadas e testadas; rotas de metas permanecem planejadas.
+Status: rotas de participantes, `POST /goals`, `POST /goals/{id}/records`, `GET /goals/{id}/records`, `GET /goals/{goalId}/records/{id}` e `GET /goals/{id}/progress` implementadas e testadas; consulta e encerramento de metas permanecem planejados.
 
 ## Convenções
 
@@ -98,7 +98,7 @@ Saída `201`:
 {"id":"189bc8fc-9e93-4c18-a48e-d11fd7ad4b02","participantId":"72f43a86-cf1a-4d20-b60a-3a9c92e5d8f1","name":"Caminhar","dailyTarget":30,"unit":"MINUTES","startDate":"2026-10-09","closedAt":null}
 ```
 
-Unidades: `ML`, `MINUTES`, `REPETITIONS`. O nome deve conter de 1 a 100 caracteres após remover espaços nas extremidades; o valor sem esses espaços é armazenado e retornado, preservando maiúsculas e minúsculas para exibição. Alvo inteiro positivo e data válida. Campos inválidos retornam `400`. Início passado ou futuro é permitido. Participante inexistente retorna `404`; meta duplicada não encerrada retorna `400` (R5).
+Unidades: `ML`, `MINUTES`, `REPETITIONS`. O nome deve conter de 1 a 100 caracteres após remover espaços nas extremidades; o valor sem esses espaços é armazenado e retornado, preservando maiúsculas e minúsculas para exibição. Alvo inteiro positivo até 2.147.483.647 (limite da coluna `integer` existente) e data válida no formato `AAAA-MM-DD`, a partir do ano 0001. Campos inválidos retornam `400`. Início passado ou futuro é permitido. Participante inexistente retorna `404`; meta duplicada não encerrada retorna `400` (R5).
 
 ### GET /participants/{id}/goals
 

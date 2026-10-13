@@ -2,7 +2,7 @@
 
 Backend para acompanhamento de hábitos saudáveis, desenvolvido como projeto da disciplina de Backend (Engenharia de Software), no tema **Saúde e Bem-Estar**.
 
-**Status:** configuração, PostgreSQL, API de participantes e cadastro de registros de prática (R2 e R3) implementados. Metas, histórico de registros e progresso diário ainda estão em planejamento.
+**Status:** configuração, PostgreSQL, API de participantes, criação de metas (R5) e cadastro de registros de prática (R2 e R3) implementados. Consulta e encerramento de metas, histórico de registros e progresso diário permanecem planejados.
 
 ## Problema e público
 
@@ -94,7 +94,7 @@ URL base local: `http://localhost:3333`.
 | GET | `/goals/{goalId}/records/{id}` | Buscar um registro da meta |
 | GET | `/goals/{id}/progress?date=AAAA-MM-DD` | Consultar progresso diário |
 
-As três rotas de participantes estão implementadas, com `400` para campos inválidos ou e-mail duplicado e `404` para participante inexistente. `POST /goals/{id}/records` está implementada, com `400` para campos inválidos e violações de R2/R3 e `404` para meta inexistente. As demais rotas permanecem planejadas. Exemplos de JSON e respostas estão no [contrato da API](docs/contrato-da-api.md).
+As três rotas de participantes estão implementadas, com `400` para campos inválidos ou e-mail duplicado e `404` para participante inexistente. `POST /goals/{id}/records` está implementada, com `400` para campos inválidos e violações de R2/R3 e `404` para meta inexistente. `POST /goals` está implementada, com `201` e o DTO público, `400` para entradas inválidas ou duplicatas não encerradas e `404` para participante inexistente. As demais rotas permanecem planejadas. Exemplos de JSON e respostas estão no [contrato da API](docs/contrato-da-api.md).
 
 As três listagens aceitam `page` e `limit` (padrões 1 e 20, máximo de 100 itens por página) e retornam `data` e `pagination` com os totais.
 
@@ -188,6 +188,32 @@ O caso de uso busca a meta e aplica as regras: meta inexistente (`404`), meta en
 
 Para garantir R3 também numa corrida com o encerramento, `DrizzlePracticeRecordRepository.create` lê a meta aberta com `SELECT ... FOR SHARE` na mesma transação do `INSERT` e retorna `false` se ela já estiver encerrada, como o cadastro de participantes faz com e-mails duplicados. O encerramento só precisa atualizar `closed_at` com um `UPDATE` na linha da meta. O [manual do registro de prática](docs/implementation/manual-registro-de-pratica.md) explica o fluxo completo.
 
+## Implementação da criação de metas (issue #1)
+
+`POST /goals` segue o contrato da API e a organização de participantes:
+
+- `HabitGoal` em `src/domain/habits/enterprise/entities/habit-goal.ts` herda `Entity`, usa `UniqueEntityID` e mantém alvo e unidade sem setters.
+- `CreateHabitGoalUseCase` verifica o participante, normaliza o nome e aplica R5.
+- `HabitGoalRepository` em `src/domain/habits/application/repositories/habit-goal-repository.ts` oferece `create` e `findById`.
+- `DrizzleHabitGoalRepository` e `DrizzleHabitGoalMapper` fazem a persistência. A criação usa `ON CONFLICT` com o índice parcial `habit_goals_active_unique`, que impede duplicatas e arbitra requisições concorrentes numa única operação.
+- Schema/DTO, controller e factory ficam em `infra/http`. `normalizedName` é interno; o DTO contém apenas `id`, `participantId`, `name`, `dailyTarget`, `unit`, `startDate` e `closedAt`.
+- Corpo e query são estritos. O alvo aceita inteiros de 1 a 2.147.483.647, limite da coluna PostgreSQL existente. Datas válidas no formato `AAAA-MM-DD`, a partir do ano 0001, podem ser passadas, atuais ou futuras.
+- Testes unitários estão junto ao caso de uso e testes HTTP em `test/integrations/habit-goals.integration.spec.ts`.
+
+### Validação desta alteração
+
+- `pnpm typecheck`, `pnpm lint`, `pnpm build` e `pnpm openapi`: aprovados.
+- `pnpm test:unit`: 57 testes aprovados, incluindo testes HTTP com repositórios em memória.
+- `pnpm test:integration`: execução bloqueada pela ausência de `TEST_DATABASE_URL`/`DATABASE_URL` e de PostgreSQL disponível no ambiente de edição. Os 39 testes de metas com PostgreSQL foram adicionados, mas sua execução real, especialmente o conflito concorrente do índice parcial, ainda precisa ser confirmada localmente ou no CI.
+
+Para concluir essa validação na máquina de desenvolvimento, siga “Como executar” para subir o PostgreSQL e execute `pnpm test:integration`. Não considere a issue totalmente verificada antes desse resultado.
+
+### Contrato disponível para integração com os registros (Renan)
+
+A entidade e o contrato acima são os pontos compartilhados. Para consultar a meta, injete `HabitGoalRepository` no caso de uso dos registros e chame `findById(goalId)`: retorna `HabitGoal | null`, incluindo metas encerradas. `closedAt` permanece `Date | null` no domínio e `isClosed` permanece disponível, conforme a implementação dos registros. O chamador pode consultar `startDate`, `unit`, `dailyTarget` e `closedAt` para aplicar as regras dos registros. IDs são `UniqueEntityID` no domínio; use `.toString()` ao montar DTOs. A factory pode usar `new DrizzleHabitGoalRepository(getDatabase())`.
+
+Nenhum schema ou migration existente foi alterado. Consulta HTTP e encerramento serão implementados nas issues correspondentes.
+
 ## Situação da entrega
 
 | Item | Situação |
@@ -197,9 +223,9 @@ Para garantir R3 também numa corrida com o encerramento, `DrizzlePracticeRecord
 | Contrato da API | Documentado, com detalhes técnicos propostos |
 | Divisão de tarefas e roteiro de testes | Documentados |
 | Banco e migrations | Três tabelas criadas, com constraints e chaves estrangeiras |
-| Estrutura do código | Participantes e cadastro de registros implementados; metas, histórico e progresso pendentes |
+| Estrutura do código | Participantes, criação de metas e cadastro de registros implementados; demais operações pendentes |
 | API simples | Cadastro, listagem paginada e busca de participantes implementados e testados |
-| Regras R1–R5 pela API | R2 e R3 implementadas e testadas no cadastro de registros; R1, R4 e R5 pendentes; constraints de banco preparadas |
+| Regras R1–R5 pela API | R2 e R3 no cadastro de registros; R5 na criação de metas; R1 e R4 pendentes |
 | Autoavaliação | Ficha criada; verificação da implementação pendente |
 
 ## Prazos
