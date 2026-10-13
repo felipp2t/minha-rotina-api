@@ -1,6 +1,6 @@
 # Minha Rotina: roteiro de testes e demonstração
 
-Status: cenários de participantes, do cadastro de registros (R2 e R3) e do histórico de registros e do progresso diário (R4) cobertos por testes automatizados; cenários das rotas de metas ainda planejados.
+Status: cenários das rotas de participantes, metas, registros e progresso diário cobertos por testes automatizados; CI completo com PostgreSQL passou no PR #17.
 
 Usar Swagger UI ou Postman e datas calculadas em `America/Sao_Paulo`. Nos testes automatizados das regras, controlar o relógio para que os cenários não dependam do dia da execução.
 
@@ -72,10 +72,10 @@ Ao executar, registrar data, responsável e resultado. Preparar uma sequência c
 - Cadastro de registros: limites de R2 (início, hoje, meta com início futuro, virada do dia em São Paulo), R3 (inclusive registro atrasado), vários registros no mesmo dia, validação de data e quantidade, campos e parâmetros desconhecidos, `404` e corrida com encerramento. Nos testes HTTP, as metas são inseridas diretamente no banco até as rotas de metas existirem.
 - Histórico de registros: ordenação por data e UUID antes de paginar, totais completos, página além da última, histórico vazio, `limit` 1 e 100, paginação inválida, meta encerrada, registro de outra meta, `404` de meta e registro, UUIDs malformados e parâmetros de consulta desconhecidos.
 - Progresso diário: soma de vários registros (15 + 20 numa meta de 30), total abaixo, igual e acima do alvo, mais registros do que cabem numa página do histórico, dia válido sem registros, outra meta e outra data, limites de início e hoje, meta com início futuro, virada do dia em São Paulo, meta encerrada, data ausente ou inválida, `page`/`limit` recusados, `404` e UUID malformado.
-- `pnpm test:integration`: HTTP, PostgreSQL real, migrations, normalização, unicidade concorrente, paginação, validação, erros e Swagger.
+- `pnpm test:integration`: HTTP, PostgreSQL real, migrations, normalização, unicidade concorrente, paginação, validação, erros, concorrência de encerramento e Swagger; executado no CI do PR #17.
 - `pnpm test`: ambas as coberturas.
 
-Os testes de integração usam `TEST_DATABASE_URL` ou `DATABASE_URL` para criar um banco temporário por execução; somente esse banco é limpo e removido. O usuário precisa da permissão `CREATEDB`. As operações de metas e registros ainda não estão disponíveis para executar os demais cenários deste roteiro.
+Os testes de integração usam `TEST_DATABASE_URL` ou `DATABASE_URL` para criar um banco temporário por execução; somente esse banco é limpo e removido. O usuário precisa da permissão `CREATEDB`. Para execução local, configure PostgreSQL conforme o README.
 
 Resultado em 12/10/2026: 39 testes passaram (8 unitários e 31 de integração), inclusive em uma instalação em pasta limpa.
 
@@ -83,4 +83,4 @@ Resultado em 13/10/2026 (Renan, cadastro de registros): 87 testes passaram (28 u
 
 Resultado em 13/10/2026 (Renan, histórico de registros): 115 testes passaram (37 unitários e 78 de integração).
 
-Resultado em 13/10/2026 (Renan, progresso diário): 147 testes passaram (47 unitários e 100 de integração).
+Resultado em 13/10/2026 (Renan, progresso diário): 147 testes passaram (47 unitários e 100 de integração). Após a implementação das consultas e do encerramento de metas, a suíte completa passou no CI do PR #17.

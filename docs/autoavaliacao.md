@@ -1,22 +1,22 @@
 # Minha Rotina: autoavaliação da Etapa 1
 
-Status: configuração, banco e participantes implementados; etapa completa ainda pendente.
+Status: implementação e testes automatizados concluídos; conferência acadêmica final pendente.
 
-Não há nota estimada. Há testes automatizados de participantes e banco; as operações de metas e registros ainda não foram implementadas.
+Não há nota estimada. As operações de participantes, metas, registros e progresso estão implementadas. A avaliação abaixo deve ser confirmada pelo grupo com demonstração e evidências da entrega.
 
 | Critério | Situação atual | Evidência a apresentar |
 |---|---|---|
 | P1: Sobe pelo README | Verificado em pasta limpa | Em 12/10/2026: instalação pelo lockfile, migrations, build e HTTP do servidor compilado, usando PostgreSQL do Compose |
-| P2: Camadas | Parcial: participantes implementados | Pastas e classes de todas as entidades |
-| P3: Banco e entidades | Parcial: migrations das três tabelas; somente modelo de participantes | Schemas Drizzle, modelos, migrations e chaves estrangeiras |
-| P4: DTOs | Parcial: participantes implementados | Entrada validada por Zod e saída separada do modelo |
-| P5: Estrutura documentada | Parcial: participantes completos | Classes completas, dependências por construtor, cabeçalhos e mapa no README |
+| P2: Camadas | Implementado | Casos de uso, contratos, repositórios, controllers e factories de participantes, metas e registros |
+| P3: Banco e entidades | Implementado | Schemas Drizzle, modelos, migrations e chaves estrangeiras |
+| P4: DTOs | Implementado | Entrada validada por Zod e saída separada dos modelos |
+| P5: Estrutura documentada | Implementado | Dependências por construtor, estrutura de pastas e responsabilidades descritas no README e em `docs/` |
 | P6: API simples | Implementado e testado | `test/integrations/participants.integration.spec.ts`: POST e GETs, `400`, `404`, paginação e cadastros simultâneos |
-| P7: Regras implementadas | Pendente | R2, R3 e R5 nos casos de uso e requisições que as violam; R1/R4 demonstradas |
-| P8: Regras atendem ao tema | Problema e regras documentados | Mostrar como preservam o acompanhamento diário e histórico dos hábitos |
-| P9: Código igual ao desenho | Parcial: participantes e schemas correspondem ao desenho | Contratos de participantes cobertos nos testes; metas e registros ainda sem API |
-| P10: README completo | Atualizado para o escopo implementado | Comandos reais, mapa de participantes e pendências documentados |
+| P7: Regras implementadas | Implementado e coberto por testes | R1–R5 aplicadas nas operações de metas, registros e progresso |
+| P8: Regras atendem ao tema | Documentado; confirmar na apresentação | Demonstrar acompanhamento diário, metas e preservação do histórico |
+| P9: Código igual ao desenho | Implementado; confirmar na revisão final | Camadas e contratos descritos correspondem às rotas e testes existentes |
+| P10: README completo | Atualizado | Comandos, mapa, rotas e situação atual documentados |
 
 Após verificar a implementação, substituir a situação por atende, parcial ou não atende e acrescentar evidências reais. Referência: [critérios da disciplina](./enunciado/AVALIACAO.md).
 
-Verificação em 12/10/2026: typecheck, Biome/Ultracite, build, exportação OpenAPI e 39 testes passaram. A instalação e execução também foram verificadas em pasta temporária sem dependências ou build pré-existentes.
+Verificação em 12/10/2026: typecheck, Biome/Ultracite, build, exportação OpenAPI e 39 testes passaram em pasta limpa. A suíte completa com PostgreSQL, build e OpenAPI também passou no CI do PR #17 em 13/10/2026.

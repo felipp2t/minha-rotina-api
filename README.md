@@ -2,11 +2,11 @@
 
 Backend para acompanhamento de hábitos saudáveis, desenvolvido como projeto da disciplina de Backend (Engenharia de Software), no tema **Saúde e Bem-Estar**.
 
-**Status:** configuração, PostgreSQL, API de participantes, criação e consulta de metas (R5 e issue #2) e cadastro de registros de prática (R2 e R3) implementados. Encerramento de metas, histórico de registros e progresso diário permanecem planejados.
+**Status:** API de participantes, criação, consulta e encerramento de metas, registros de prática, histórico e progresso diário implementada e integrada à `main` pelo PR #17.
 
 ## Problema e público
 
-Pessoas que desejam manter uma rotina saudável precisam acompanhar quanto praticaram em cada dia e consultar seu histórico. O Minha Rotina permitirá definir metas pessoais diárias e registrar quantidades realizadas, reunindo o acompanhamento em um único sistema.
+Pessoas que desejam manter uma rotina saudável precisam acompanhar quanto praticaram em cada dia e consultar seu histórico. O Minha Rotina permite definir metas pessoais diárias e registrar quantidades realizadas, reunindo o acompanhamento em um único sistema.
 
 Por exemplo, uma pessoa define a meta “Caminhar”, com alvo de 30 minutos por dia. Registra 15 minutos pela manhã e 20 à tarde. O sistema apresenta 35 minutos realizados e considera o dia cumprido, mantendo os dois registros no histórico.
 
@@ -34,7 +34,7 @@ O calendário usa `America/Sao_Paulo`, com datas no formato `AAAA-MM-DD`. Quanti
 
 ## Regras de negócio
 
-| Regra | Comportamento planejado |
+| Regra | Comportamento |
 |---|---|
 | R1: Preservar a medição do histórico | Alvo e unidade são fixos; uma mudança exige encerrar a meta e criar outra |
 | R2: Respeitar o período da meta | Registros só aceitam datas entre o início da meta e hoje |
@@ -42,7 +42,7 @@ O calendário usa `America/Sao_Paulo`, com datas no formato `AAAA-MM-DD`. Quanti
 | R4: Calcular o cumprimento diário | Somar as quantidades da mesma meta e data; o dia é cumprido quando o total atinge ou ultrapassa o alvo |
 | R5: Evitar compromissos duplicados | Impedir metas não encerradas com nome e unidade iguais para o mesmo participante, ignorando caixa e espaços nas extremidades do nome |
 
-As regras serão implementadas nos casos de uso da camada de aplicação. Violações de R2, R3 e R5 retornarão `400` com mensagem explicativa. Repetir o encerramento retornará sucesso, mantendo o instante do primeiro encerramento.
+As regras são aplicadas pelos casos de uso e, quando necessário, garantidas também por constraints e transações no PostgreSQL. Violações de R2, R3 e R5 retornam `400` com mensagem explicativa. Repetir o encerramento retorna sucesso e mantém o instante do primeiro encerramento.
 
 ## Tecnologias definidas
 
@@ -58,7 +58,7 @@ Convenção do projeto: funções, variáveis, classes, campos JSON, rotas e ide
 
 PostgreSQL roda via Docker Compose, com migrations SQL versionadas pelo Drizzle Kit. A API usa Swagger UI em `/docs/` e exporta OpenAPI com `pnpm openapi`. O lockfile fixa as versões instaladas.
 
-## Entidades e estrutura planejada
+## Entidades e estrutura
 
 Os IDs das três entidades são UUIDs gerados pelo backend, representados como strings na API e armazenados em colunas `uuid` no PostgreSQL. Chaves estrangeiras também usam `uuid`.
 
@@ -94,7 +94,7 @@ URL base local: `http://localhost:3333`.
 | GET | `/goals/{goalId}/records/{id}` | Buscar um registro da meta |
 | GET | `/goals/{id}/progress?date=AAAA-MM-DD` | Consultar progresso diário |
 
-As três rotas de participantes estão implementadas, com `400` para campos inválidos ou e-mail duplicado e `404` para participante inexistente. `POST /goals/{id}/records` está implementada, com `400` para campos inválidos e violações de R2/R3 e `404` para meta inexistente. `POST /goals` está implementada, com `201` e o DTO público, `400` para entradas inválidas ou duplicatas não encerradas e `404` para participante inexistente. `GET /goals/{id}` e `GET /participants/{id}/goals` estão implementadas, com `400` para UUIDs e parâmetros inválidos e `404` para meta ou participante inexistente. As demais rotas permanecem planejadas. Exemplos de JSON e respostas estão no [contrato da API](docs/contrato-da-api.md).
+Todas as rotas listadas estão implementadas. As operações de encerramento, histórico e progresso também preservam os registros e regras descritos no [contrato da API](docs/contrato-da-api.md).
 
 As três listagens aceitam `page` e `limit` (padrões 1 e 20, máximo de 100 itens por página) e retornam `data` e `pagination` com os totais.
 
@@ -202,8 +202,7 @@ Para garantir R3 também numa corrida com o encerramento, `DrizzlePracticeRecord
 
 - `pnpm typecheck`, `pnpm lint`, `pnpm build` e `pnpm openapi`: aprovados.
 - `pnpm test:unit`: 84 testes aprovados, incluindo consulta/listagem via HTTP com repositórios em memória.
-- `pnpm test:integration`: tentado, mas as quatro suítes não conseguiram inicializar por ausência de `TEST_DATABASE_URL`/`DATABASE_URL` e PostgreSQL disponível neste ambiente. Os testes de integração foram adicionados, mas a verificação real no PostgreSQL está pendente.
-- Para finalizar a verificação, configure PostgreSQL conforme “Como executar” e execute `pnpm test:integration`. A URL de testes deve permitir criar e remover bancos temporários isolados. Não considere a issue totalmente verificada antes de essa execução passar.
+- No ambiente de edição, `pnpm test:integration` não pôde ser executado por falta de PostgreSQL configurado. A suíte completa passou no CI do PR #17, que disponibiliza PostgreSQL e executa `pnpm test`, typecheck, lint, migrations, build e verificação do OpenAPI.
 
 ## Implementação da criação de metas (issue #1)
 
@@ -221,9 +220,9 @@ Para garantir R3 também numa corrida com o encerramento, `DrizzlePracticeRecord
 
 - `pnpm typecheck`, `pnpm lint`, `pnpm build` e `pnpm openapi`: aprovados.
 - `pnpm test:unit`: 57 testes aprovados, incluindo testes HTTP com repositórios em memória.
-- `pnpm test:integration`: execução bloqueada pela ausência de `TEST_DATABASE_URL`/`DATABASE_URL` e de PostgreSQL disponível no ambiente de edição. Os 39 testes de metas com PostgreSQL foram adicionados, mas sua execução real, especialmente o conflito concorrente do índice parcial, ainda precisa ser confirmada localmente ou no CI.
+- No ambiente de edição, os testes de integração não puderam ser executados por falta de PostgreSQL configurado. A suíte completa passou no CI do PR #17, incluindo os testes de integração com PostgreSQL.
 
-Para concluir essa validação na máquina de desenvolvimento, siga “Como executar” para subir o PostgreSQL e execute `pnpm test:integration`. Não considere a issue totalmente verificada antes desse resultado.
+Para repetir a validação localmente, siga “Como executar” e rode `pnpm test:integration` com PostgreSQL configurado.
 
 ### Contrato disponível para integração com os registros (Renan)
 
@@ -243,7 +242,7 @@ Nenhum schema ou migration existente foi alterado. Consulta HTTP e encerramento 
 | Estrutura do código | Participantes, criação/consulta/encerramento de metas, registros e progresso diário implementados |
 | API simples | Cadastro, listagem paginada e busca de participantes implementados e testados |
 | Regras R1–R5 pela API | R2 e R3 no cadastro de registros; R5 na criação de metas; R1 no encerramento; R4 no progresso diário |
-| Autoavaliação | Ficha criada; verificação da implementação pendente |
+| Autoavaliação | Ficha criada; conferência acadêmica final pendente |
 
 ## Prazos
 
@@ -285,5 +284,5 @@ Os arquivos originais foram preservados em `docs/enunciado/`:
 
 - `pnpm typecheck`, `pnpm lint`, `pnpm build` e `pnpm openapi`: aprovados.
 - `pnpm test:unit`: 111 testes aprovados, incluindo encerramento e respostas HTTP em memória.
-- `pnpm test:integration`: tentado; as suítes não inicializaram porque `TEST_DATABASE_URL`/`DATABASE_URL` não está configurada e não há PostgreSQL disponível. Os oito testes novos com PostgreSQL estão pendentes de execução.
-- Execute `pnpm test:integration` com PostgreSQL configurado antes de considerar a issue totalmente verificada, especialmente os bloqueios e encerramentos concorrentes.
+- No ambiente de edição, os testes de integração não puderam ser executados por falta de PostgreSQL configurado. A suíte completa passou no CI do PR #17, incluindo os testes de encerramento, bloqueios e concorrência com PostgreSQL.
+- Para repetir a validação localmente, siga “Como executar” e rode `pnpm test:integration` com PostgreSQL configurado.

@@ -1,6 +1,6 @@
 # Minha Rotina: desenho técnico do backend
 
-Status: configuração, PostgreSQL e participantes implementados; demais operações planejadas.
+Status: backend e operações de participantes, metas, registros e progresso implementados; CI validado no PR #17.
 
 ## Tecnologias
 
@@ -56,8 +56,6 @@ O calendário de negócio usa `America/Sao_Paulo` para todos os participantes. D
 - Migrations SQL versionadas cumprem a responsabilidade do Flyway.
 - O tratamento central de erros devolverá `message` e `metadata.fields`, com status somente no HTTP. Essa adaptação foi aprovada pelo professor, conforme informado por Felipe.
 
-## Pendências
+## Estado atual
 
-- Implementar as operações de metas, registros e progresso diário.
-- Fechar detalhes técnicos dos campos e rotas; calendário e erros já definidos. `metadata.fields` contém objetos com `field` e `message`, ou um array vazio quando não há campos específicos.
-- Completar as camadas e evidências de teste das entidades ainda não implementadas.
+As rotas e regras descritas neste desenho estão implementadas. O workflow de CI executado no PR #17 passou com PostgreSQL, migrations, testes unitários e de integração, build e verificação do OpenAPI. A conferência acadêmica final permanece registrada em [autoavaliação](../autoavaliacao.md).
