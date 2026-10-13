@@ -11,6 +11,7 @@ export class DrizzleParticipantMapper {
       new UniqueEntityID(row.id),
     )
   }
+
   static toDrizzle(
     participant: Participant,
   ): InferInsertModel<typeof participants> {

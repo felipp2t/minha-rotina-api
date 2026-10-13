@@ -16,13 +16,16 @@ beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date('2026-10-13T15:00:00Z'))
 })
+
 afterEach(() => {
   vi.useRealTimers()
 })
 
 function setup(goalProps: Partial<HabitGoalProps> = {}) {
   const goals = new InMemoryHabitGoalRepository()
+
   const records = new InMemoryPracticeRecordRepository()
+
   const goal = HabitGoal.create({
     participantId: new UniqueEntityID(),
     name: 'Caminhar',
@@ -32,7 +35,9 @@ function setup(goalProps: Partial<HabitGoalProps> = {}) {
     closedAt: null,
     ...goalProps,
   })
+
   goals.items.push(goal)
+
   const useCase = new CreatePracticeRecordUseCase(goals, records)
   const register = (date: string, quantity = 15) =>
     useCase.execute({ goalId: goal.id.toString(), date, quantity })
@@ -55,8 +60,11 @@ describe('Create practice record', () => {
   it('accepts the start date and today (R2)', async () => {
     const { records, register } = setup()
 
-    expect((await register('2026-10-09')).isRight()).toBe(true)
-    expect((await register('2026-10-13')).isRight()).toBe(true)
+    const startDateResult = await register('2026-10-09')
+    const todayResult = await register('2026-10-13')
+
+    expect(startDateResult.isRight()).toBe(true)
+    expect(todayResult.isRight()).toBe(true)
     expect(records.items).toHaveLength(2)
   })
 
@@ -131,7 +139,10 @@ describe('Create practice record', () => {
     // 23:30 on 2026-10-13 in São Paulo is already 2026-10-14 in UTC.
     vi.setSystemTime(new Date('2026-10-14T02:30:00Z'))
 
-    expect((await register('2026-10-14')).isLeft()).toBe(true)
-    expect((await register('2026-10-13')).isRight()).toBe(true)
+    const tomorrowResult = await register('2026-10-14')
+    const todayResult = await register('2026-10-13')
+
+    expect(tomorrowResult.isLeft()).toBe(true)
+    expect(todayResult.isRight()).toBe(true)
   })
 })

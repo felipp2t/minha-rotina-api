@@ -1,9 +1,8 @@
-import type { InferSelectModel } from 'drizzle-orm'
+import type { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 import { UniqueEntityID } from '../../../../core/entities/unique-entity-id.js'
 import { HabitGoal } from '../../../../domain/habits/enterprise/entities/habit-goal.js'
 import type { habitGoals } from '../schema/habit-goals.js'
 
-// Converts habit goal rows to domain goals.
 export class DrizzleHabitGoalMapper {
   static toDomain(row: InferSelectModel<typeof habitGoals>): HabitGoal {
     return HabitGoal.create(
@@ -17,5 +16,18 @@ export class DrizzleHabitGoalMapper {
       },
       new UniqueEntityID(row.id),
     )
+  }
+
+  static toDrizzle(goal: HabitGoal): InferInsertModel<typeof habitGoals> {
+    return {
+      id: goal.id.toString(),
+      participantId: goal.participantId.toString(),
+      name: goal.name,
+      normalizedName: goal.normalizedName,
+      dailyTarget: goal.dailyTarget,
+      unit: goal.unit,
+      startDate: goal.startDate,
+      closedAt: goal.closedAt?.toISOString() ?? null,
+    }
   }
 }
