@@ -66,13 +66,7 @@ Um **Participante** possui várias **Metas de hábito**; cada meta possui vário
 
 Este repositório contém um único backend, com código em `src/` e configurações na raiz. As regras são implementadas em casos de uso no contexto `domain/habits`; controllers e factories ficam em `infra/http`, e schemas, mappers e repositórios Drizzle em `infra/db`.
 
-| Entidade | Modelo | Contrato de persistência | Implementação |
-|---|---|---|---|
-| Participante | `Participant` | `ParticipantRepository` | `DrizzleParticipantRepository` |
-| Meta de hábito | `HabitGoal` | `HabitGoalRepository` | `DrizzleHabitGoalRepository` |
-| Registro de prática | `PracticeRecord` | `PracticeRecordRepository` | `DrizzlePracticeRecordRepository` |
-
-Cada operação tem seu caso de uso, controller e factory. Schemas Zod definem DTOs separados dos modelos; mappers convertem dados de persistência. A [estrutura de pastas](docs/architecture/project-structure.md) apresenta a árvore completa e a função de cada pasta.
+As tabelas abaixo mapeiam as classes e módulos de cada entidade por camada. Os caminhos são relativos a `src/`; arquivos `.spec.ts` de teste foram omitidos. Controllers são plugins Fastify e factories são funções, não classes.
 
 Na equivalência com a disciplina, os casos de uso cumprem a responsabilidade dos Services. Conforme informado por Felipe, o professor aceita a organização adotada.
 
@@ -151,38 +145,66 @@ PRs para `main` e `develop` exigem o check `Backend checks` aprovado e a branch 
 
 `pnpm install` configura o hook de pre-commit de `.githooks/`, que bloqueia commits locais na `main`. Para ativá-lo em um clone já instalado, execute `pnpm run prepare`.
 
-## Mapa da implementação de participantes
+### Participante
 
-| Responsabilidade | Arquivo em `src/` |
+| Camada / responsabilidade | Classe ou módulo |
 |---|---|
-| Modelo de domínio | `domain/habits/enterprise/entities/participant.ts` |
-| Contrato de persistência | `domain/habits/application/repositories/participant-repository.ts` |
-| Casos de uso / Services | `domain/habits/application/use-cases/create-participant.ts`, `get-participant.ts`, `get-participants.ts` |
-| Erros de domínio | `domain/habits/application/use-cases/errors/participant-already-exists-error.ts`, `participant-not-found-error.ts` |
-| Repository PostgreSQL | `infra/db/drizzle/repositories/participant-repository.ts` |
-| Mapper de persistência | `infra/db/drizzle/mappers/drizzle-participant-mapper.ts` |
-| Tabela e constraints | `infra/db/drizzle/schema/participants.ts` |
-| DTOs e conversão pública | `infra/http/schemas/participant.schema.ts` |
-| Controllers | `infra/http/controllers/create-participant.controller.ts`, `get-participant.controller.ts`, `get-participants.controller.ts` |
-| Composição por construtor | `infra/http/factories/make-create-participant-use-case.ts`, `make-get-participant-use-case.ts`, `make-get-participants-use-case.ts` |
-| Contrato e tratamento de erros | `infra/http/schemas/error.schema.ts`, `infra/http/error-handler.ts` |
+| Entidade de domínio | `Participant` — `domain/habits/enterprise/entities/participant.ts` |
+| Contrato de Repository | `ParticipantRepository` — `domain/habits/application/repositories/participant-repository.ts` |
+| Services / casos de uso | `CreateParticipantUseCase`, `GetParticipantUseCase`, `GetParticipantsUseCase` — `domain/habits/application/use-cases/` |
+| Erros | `ParticipantAlreadyExistsError`, `ParticipantNotFoundError` — `domain/habits/application/use-cases/errors/` |
+| Repository PostgreSQL | `DrizzleParticipantRepository` — `infra/db/drizzle/repositories/participant-repository.ts` |
+| Mapper | `DrizzleParticipantMapper` — `infra/db/drizzle/mappers/drizzle-participant-mapper.ts` |
+| Schema de banco | `participants` — `infra/db/drizzle/schema/participants.ts` |
+| DTOs de entrada/saída e validação | schemas Zod e tipos inferidos — `infra/http/schemas/participant.schema.ts` |
+| Controllers | `createParticipantController`, `getParticipantController`, `getParticipantsController` — `infra/http/controllers/` |
+| Factories / injeção por construtor | `makeCreateParticipantUseCase`, `makeGetParticipantUseCase`, `makeGetParticipantsUseCase` — `infra/http/factories/` |
 
 Os casos de uso recebem o contrato de Repository por construtor e retornam falhas esperadas por `Either`. Os controllers devolvem DTOs explícitos. A unicidade de e-mail também é garantida pelo banco; conflitos em cadastros simultâneos retornam `400`.
 
-## Mapa da implementação de registros de prática
+### Meta de hábito
 
-| Responsabilidade | Arquivo em `src/` |
+| Camada / responsabilidade | Classe ou módulo |
 |---|---|
-| Modelos de domínio | `domain/habits/enterprise/entities/practice-record.ts`, `habit-goal.ts` |
-| Data de hoje em São Paulo | `domain/habits/enterprise/services/today-in-sao-paulo.ts` |
-| Contratos de persistência | `domain/habits/application/repositories/practice-record-repository.ts`, `habit-goal-repository.ts` |
-| Caso de uso / Service (R2 e R3) | `domain/habits/application/use-cases/create-practice-record.ts` |
-| Erros de domínio | `domain/habits/application/use-cases/errors/habit-goal-not-found-error.ts`, `habit-goal-closed-error.ts`, `invalid-practice-date-error.ts` |
-| Repositories PostgreSQL | `infra/db/drizzle/repositories/practice-record-repository.ts`, `habit-goal-repository.ts` |
-| Mappers de persistência | `infra/db/drizzle/mappers/drizzle-practice-record-mapper.ts`, `drizzle-habit-goal-mapper.ts` |
-| DTOs e conversão pública | `infra/http/schemas/practice-record.schema.ts` |
-| Controller | `infra/http/controllers/create-practice-record.controller.ts` |
-| Composição por construtor | `infra/http/factories/make-create-practice-record-use-case.ts` |
+| Entidade de domínio | `HabitGoal` — `domain/habits/enterprise/entities/habit-goal.ts` |
+| Contrato de Repository | `HabitGoalRepository` — `domain/habits/application/repositories/habit-goal-repository.ts` |
+| Services / casos de uso | `CreateHabitGoalUseCase`, `GetHabitGoalUseCase`, `GetParticipantGoalsUseCase`, `CloseHabitGoalUseCase` — `domain/habits/application/use-cases/` |
+| Erros | `HabitGoalAlreadyExistsError`, `HabitGoalNotFoundError` — `domain/habits/application/use-cases/errors/` |
+| Repository PostgreSQL | `DrizzleHabitGoalRepository` — `infra/db/drizzle/repositories/habit-goal-repository.ts` |
+| Mapper | `DrizzleHabitGoalMapper` — `infra/db/drizzle/mappers/drizzle-habit-goal-mapper.ts` |
+| Schema de banco | `habitGoals` — `infra/db/drizzle/schema/habit-goals.ts` |
+| DTOs de entrada/saída e validação | schemas Zod e tipos inferidos — `infra/http/schemas/habit-goal.schema.ts` |
+| Controllers | `createHabitGoalController`, `getHabitGoalController`, `getParticipantGoalsController`, `closeHabitGoalController` — `infra/http/controllers/` |
+| Factories / injeção por construtor | `makeCreateHabitGoalUseCase`, `makeGetHabitGoalUseCase`, `makeGetParticipantGoalsUseCase`, `makeCloseHabitGoalUseCase` — `infra/http/factories/` |
+
+`CreateHabitGoalUseCase` também usa `ParticipantRepository` e pode retornar `ParticipantNotFoundError` quando o participante informado não existe.
+
+### Registro de prática e progresso diário
+
+| Camada / responsabilidade | Classe ou módulo |
+|---|---|
+| Entidade de domínio | `PracticeRecord` — `domain/habits/enterprise/entities/practice-record.ts` |
+| Serviço de domínio compartilhado | `todayInSaoPaulo` — `domain/habits/enterprise/services/today-in-sao-paulo.ts` |
+| Contrato de Repository | `PracticeRecordRepository` — `domain/habits/application/repositories/practice-record-repository.ts` |
+| Services / casos de uso | `CreatePracticeRecordUseCase`, `GetPracticeRecordsUseCase`, `GetPracticeRecordUseCase`, `GetDailyProgressUseCase` — `domain/habits/application/use-cases/` |
+| Erros | `HabitGoalClosedError`, `HabitGoalNotFoundError`, `InvalidPracticeDateError`, `InvalidProgressDateError`, `PracticeRecordNotFoundError` — `domain/habits/application/use-cases/errors/` |
+| Repositories PostgreSQL | `DrizzlePracticeRecordRepository` em `infra/db/drizzle/repositories/practice-record-repository.ts`; `DrizzleHabitGoalRepository` também fornece os dados da meta |
+| Mapper | `DrizzlePracticeRecordMapper` — `infra/db/drizzle/mappers/drizzle-practice-record-mapper.ts` |
+| Schema de banco | `practiceRecords` — `infra/db/drizzle/schema/practice-records.ts`; consulta a `habitGoals` para validar estado da meta |
+| DTOs de entrada/saída e validação | schemas Zod e tipos inferidos — `infra/http/schemas/practice-record.schema.ts` |
+| Controllers | `createPracticeRecordController`, `getPracticeRecordsController`, `getPracticeRecordController`, `getDailyProgressController` — `infra/http/controllers/` |
+| Factories / injeção por construtor | `makeCreatePracticeRecordUseCase`, `makeGetPracticeRecordsUseCase`, `makeGetPracticeRecordUseCase`, `makeGetDailyProgressUseCase` — `infra/http/factories/` |
+
+### Classes compartilhadas
+
+| Camada / responsabilidade | Classe ou módulo |
+|---|---|
+| Identidade de entidades | `Entity`, `UniqueEntityID` — `core/entities/` |
+| Resultado de sucesso ou falha | `Left`, `Right`, `Either` — `core/types/either.ts` |
+| Contrato dos erros esperados | `BaseError` — `core/errors/base-error.ts` |
+| DTO de erro e conversão de erros HTTP | schemas Zod — `infra/http/schemas/error.schema.ts`; handler — `infra/http/error-handler.ts` |
+| Composição da aplicação e conexão | `buildApp` — `app.ts`; `getDatabase` — `infra/db/database.ts`; inicialização — `server.ts` |
+| Migration | SQL versionado em `drizzle/0000_keen_hardball.sql` |
 
 O caso de uso busca a meta e aplica as regras: meta inexistente (`404`), meta encerrada (R3) e data fora do intervalo entre o início da meta e hoje em `America/Sao_Paulo` (R2), inclusive para metas com início futuro. Os testes fixam a data do sistema para verificar os limites sem depender do dia da execução.
 
