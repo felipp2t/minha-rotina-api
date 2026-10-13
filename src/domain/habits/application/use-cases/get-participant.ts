@@ -11,7 +11,7 @@ export class GetParticipantUseCase {
     id: string,
   ): Promise<Either<ParticipantNotFoundError, Participant>> {
     const participant = await this.participantRepository.findById(id)
-    
+
     if (!participant) {
       return left(new ParticipantNotFoundError())
     }

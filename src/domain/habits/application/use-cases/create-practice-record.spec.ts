@@ -23,9 +23,9 @@ afterEach(() => {
 
 function setup(goalProps: Partial<HabitGoalProps> = {}) {
   const goals = new InMemoryHabitGoalRepository()
-  
+
   const records = new InMemoryPracticeRecordRepository()
-  
+
   const goal = HabitGoal.create({
     participantId: new UniqueEntityID(),
     name: 'Caminhar',
@@ -35,9 +35,9 @@ function setup(goalProps: Partial<HabitGoalProps> = {}) {
     closedAt: null,
     ...goalProps,
   })
-  
+
   goals.items.push(goal)
-  
+
   const useCase = new CreatePracticeRecordUseCase(goals, records)
   const register = (date: string, quantity = 15) =>
     useCase.execute({ goalId: goal.id.toString(), date, quantity })
