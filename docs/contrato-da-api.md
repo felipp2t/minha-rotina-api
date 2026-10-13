@@ -1,6 +1,6 @@
 # Minha Rotina: contrato da API
 
-Status: rotas de participantes, `POST /goals`, `POST /goals/{id}/records`, `GET /goals/{id}/records`, `GET /goals/{goalId}/records/{id}` e `GET /goals/{id}/progress` implementadas e testadas; consulta e encerramento de metas permanecem planejados.
+Status: rotas de participantes, `POST /goals`, `GET /goals/{id}`, `GET /participants/{id}/goals`, `POST /goals/{id}/records`, `GET /goals/{id}/records`, `GET /goals/{goalId}/records/{id}` e `GET /goals/{id}/progress` implementadas e testadas; encerramento de metas permanece planejado.
 
 ## Convenções
 
@@ -15,7 +15,7 @@ Os cadastros de participantes, metas e registros retornam HTTP `201` com o JSON 
 Aplicável a `GET /participants`, `GET /participants/{id}/goals` e `GET /goals/{id}/records`.
 
 - Parâmetros opcionais: `page` (inteiro positivo, padrão 1) e `limit` (inteiro entre 1 e 100, padrão 20).
-- Parâmetros inválidos retornam `400`, com o nome do parâmetro em `metadata.fields`. Na implementação de participantes, `page` e o offset calculado devem estar dentro do intervalo de inteiros seguros do JavaScript.
+- Parâmetros inválidos retornam `400`, com o nome do parâmetro em `metadata.fields`. Nas listagens de participantes e metas, `page` e o offset calculado devem estar dentro do intervalo de inteiros seguros do JavaScript.
 - `data` contém os itens da página, respeitando a ordenação definida para a rota antes do recorte.
 - `pagination` contém `page`, `limit`, `total` e `totalPages`; `total` conta todos os itens da listagem correspondente, não apenas a página.
 - `totalPages = ceil(total / limit)`; se não houver itens, será zero.
