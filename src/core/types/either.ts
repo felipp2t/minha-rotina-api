@@ -1,3 +1,4 @@
+// Represents the failure branch of an Either result.
 export class Left<L, R> {
   readonly value: L
 
@@ -14,6 +15,7 @@ export class Left<L, R> {
   }
 }
 
+// Represents the success branch of an Either result.
 export class Right<L, R> {
   readonly value: R
 
