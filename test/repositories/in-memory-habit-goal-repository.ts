@@ -5,6 +5,12 @@ import type { HabitGoal } from '../../src/domain/habits/enterprise/entities/habi
 export class InMemoryHabitGoalRepository implements HabitGoalRepository {
   items: HabitGoal[] = []
 
+  async close(id: string) {
+    const goal = await this.findById(id)
+    goal?.close(new Date())
+    return goal
+  }
+
   async create(goal: HabitGoal) {
     if (
       this.items.some(
