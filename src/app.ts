@@ -8,6 +8,7 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
 import { createParticipantController } from './infra/http/controllers/create-participant.controller.js'
+import { createPracticeRecordController } from './infra/http/controllers/create-practice-record.controller.js'
 import { getParticipantController } from './infra/http/controllers/get-participant.controller.js'
 import { getParticipantsController } from './infra/http/controllers/get-participants.controller.js'
 import { registerErrorHandler } from './infra/http/error-handler.js'
@@ -26,5 +27,6 @@ export function buildApp({ logger = false }: { logger?: boolean } = {}) {
   app.register(createParticipantController)
   app.register(getParticipantsController)
   app.register(getParticipantController)
+  app.register(createPracticeRecordController)
   return app
 }
