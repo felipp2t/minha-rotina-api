@@ -9,6 +9,7 @@ import {
 } from 'fastify-type-provider-zod'
 import { createParticipantController } from './infra/http/controllers/create-participant.controller.js'
 import { createPracticeRecordController } from './infra/http/controllers/create-practice-record.controller.js'
+import { getDailyProgressController } from './infra/http/controllers/get-daily-progress.controller.js'
 import { getParticipantController } from './infra/http/controllers/get-participant.controller.js'
 import { getParticipantsController } from './infra/http/controllers/get-participants.controller.js'
 import { getPracticeRecordController } from './infra/http/controllers/get-practice-record.controller.js'
@@ -32,5 +33,6 @@ export function buildApp({ logger = false }: { logger?: boolean } = {}) {
   app.register(createPracticeRecordController)
   app.register(getPracticeRecordsController)
   app.register(getPracticeRecordController)
+  app.register(getDailyProgressController)
   return app
 }

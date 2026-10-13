@@ -38,6 +38,18 @@ export const practiceRecordListSchema = z.object({
   }),
 })
 
+export const dailyProgressQuerySchema = z.strictObject({
+  date: z.iso.date('Informe uma data válida no formato AAAA-MM-DD.'),
+})
+export const dailyProgressSchema = z.object({
+  goalId: z.uuid(),
+  date: z.iso.date(),
+  unit: z.enum(['ML', 'MINUTES', 'REPETITIONS']),
+  dailyTarget: z.number().int(),
+  totalCompleted: z.number().int(),
+  completed: z.boolean(),
+})
+
 export type CreatePracticeRecordDto = z.infer<
   typeof createPracticeRecordBodySchema
 >

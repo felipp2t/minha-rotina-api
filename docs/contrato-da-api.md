@@ -1,6 +1,6 @@
 # Minha Rotina: contrato da API
 
-Status: rotas de participantes e de registros (`POST /goals/{id}/records`, `GET /goals/{id}/records` e `GET /goals/{goalId}/records/{id}`) implementadas e testadas; metas e progresso permanecem planejados.
+Status: rotas de participantes e de registros (`POST /goals/{id}/records`, `GET /goals/{id}/records` e `GET /goals/{goalId}/records/{id}`) e `GET /goals/{id}/progress` implementadas e testadas; rotas de metas permanecem planejadas.
 
 ## Convenções
 

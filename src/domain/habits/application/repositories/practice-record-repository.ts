@@ -16,4 +16,9 @@ export abstract class PracticeRecordRepository {
     pagination: PaginationInput,
   ): Promise<PracticeRecordPage>
   abstract findById(id: string): Promise<PracticeRecord | null>
+  // Sums the quantities of every record of the goal on the date (0 if none).
+  abstract sumQuantityByGoalIdAndDate(
+    goalId: string,
+    date: string,
+  ): Promise<number>
 }

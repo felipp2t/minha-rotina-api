@@ -32,4 +32,14 @@ export class InMemoryPracticeRecordRepository
       this.items.find((item) => item.id.toString() === id) ?? null,
     )
   }
+
+  sumQuantityByGoalIdAndDate(goalId: string, date: string): Promise<number> {
+    return Promise.resolve(
+      this.items
+        .filter(
+          (item) => item.goalId.toString() === goalId && item.date === date,
+        )
+        .reduce((total, item) => total + item.quantity, 0),
+    )
+  }
 }

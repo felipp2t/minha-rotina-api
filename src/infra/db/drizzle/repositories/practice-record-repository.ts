@@ -1,4 +1,4 @@
-import { and, asc, count, eq, isNull } from 'drizzle-orm'
+import { and, asc, count, eq, isNull, sql } from 'drizzle-orm'
 import type { PaginationInput } from '../../../../domain/habits/application/repositories/participant-repository.js'
 import type { PracticeRecordRepository } from '../../../../domain/habits/application/repositories/practice-record-repository.js'
 import type { PracticeRecord } from '../../../../domain/habits/enterprise/entities/practice-record.js'
@@ -69,5 +69,19 @@ export class DrizzlePracticeRecordRepository
       .where(eq(practiceRecords.id, id))
       .limit(1)
     return row ? DrizzlePracticeRecordMapper.toDomain(row) : null
+  }
+
+  // SUM over all records of the date, without pagination. PostgreSQL returns
+  // the sum of integers as text (bigint), so it is converted to a number.
+  async sumQuantityByGoalIdAndDate(goalId: string, date: string) {
+    const [result] = await this.database.db
+      .select({
+        total: sql<string>`coalesce(sum(${practiceRecords.quantity}), 0)`,
+      })
+      .from(practiceRecords)
+      .where(
+        and(eq(practiceRecords.goalId, goalId), eq(practiceRecords.date, date)),
+      )
+    return Number(result?.total ?? 0)
   }
 }
