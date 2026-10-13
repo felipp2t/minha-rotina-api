@@ -81,18 +81,22 @@ describe('Create habit goal', () => {
   it('allows different units and different participants', async () => {
     await useCase.execute(input)
 
-    expect(
-      (await useCase.execute({ ...input, unit: 'REPETITIONS' })).isRight(),
-    ).toBe(true)
+    const differentUnit = await useCase.execute({
+      ...input,
+      unit: 'REPETITIONS',
+    })
+
+    expect(differentUnit.isRight()).toBe(true)
 
     const other = Participant.create({ name: 'Bia', email: 'bia@example.com' })
     await participants.create(other)
 
-    expect(
-      (
-        await useCase.execute({ ...input, participantId: other.id.toString() })
-      ).isRight(),
-    ).toBe(true)
+    const differentParticipant = await useCase.execute({
+      ...input,
+      participantId: other.id.toString(),
+    })
+
+    expect(differentParticipant.isRight()).toBe(true)
     expect(goals.items).toHaveLength(3)
   })
 
@@ -105,15 +109,17 @@ describe('Create habit goal', () => {
       }),
     )
 
-    expect((await useCase.execute(input)).isRight()).toBe(true)
+    const result = await useCase.execute(input)
+
+    expect(result.isRight()).toBe(true)
     expect(goals.items).toHaveLength(2)
   })
 
   it('translates a duplicate reported by persistence', async () => {
     vi.spyOn(goals, 'create').mockResolvedValue(false)
 
-    expect((await useCase.execute(input)).value).toBeInstanceOf(
-      HabitGoalAlreadyExistsError,
-    )
+    const result = await useCase.execute(input)
+
+    expect(result.value).toBeInstanceOf(HabitGoalAlreadyExistsError)
   })
 })

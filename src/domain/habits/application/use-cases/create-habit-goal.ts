@@ -29,7 +29,11 @@ export class CreateHabitGoalUseCase {
   ): Promise<
     Either<ParticipantNotFoundError | HabitGoalAlreadyExistsError, HabitGoal>
   > {
-    if (!(await this.participantRepository.findById(input.participantId))) {
+    const participant = await this.participantRepository.findById(
+      input.participantId,
+    )
+
+    if (!participant) {
       return left(new ParticipantNotFoundError())
     }
 
@@ -38,7 +42,8 @@ export class CreateHabitGoalUseCase {
       participantId: new UniqueEntityID(input.participantId),
     })
 
-    if (!(await this.habitGoalRepository.create(goal))) {
+    const created = await this.habitGoalRepository.create(goal)
+    if (!created) {
       return left(new HabitGoalAlreadyExistsError())
     }
 

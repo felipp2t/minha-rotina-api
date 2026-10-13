@@ -30,6 +30,7 @@ export class CreatePracticeRecordUseCase {
     input: CreatePracticeRecordInput,
   ): Promise<Either<CreatePracticeRecordError, PracticeRecord>> {
     const goal = await this.habitGoalRepository.findById(input.goalId)
+
     if (!goal) {
       return left(new HabitGoalNotFoundError())
     }
@@ -40,6 +41,7 @@ export class CreatePracticeRecordUseCase {
 
     // Dates in YYYY-MM-DD format can be compared as text.
     const today = todayInSaoPaulo()
+
     if (goal.startDate > today) {
       return left(
         new InvalidPracticeDateError(
@@ -47,6 +49,7 @@ export class CreatePracticeRecordUseCase {
         ),
       )
     }
+
     if (input.date > today) {
       return left(
         new InvalidPracticeDateError(
@@ -54,6 +57,7 @@ export class CreatePracticeRecordUseCase {
         ),
       )
     }
+
     if (input.date < goal.startDate) {
       return left(
         new InvalidPracticeDateError(
@@ -69,7 +73,9 @@ export class CreatePracticeRecordUseCase {
     })
 
     // The goal may have been closed after the lookup above (R3 race).
-    if (!(await this.practiceRecordRepository.create(record))) {
+    const created = await this.practiceRecordRepository.create(record)
+
+    if (!created) {
       return left(new HabitGoalClosedError())
     }
 

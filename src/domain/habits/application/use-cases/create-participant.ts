@@ -17,13 +17,18 @@ export class CreateParticipantUseCase {
   ): Promise<Either<ParticipantAlreadyExistsError, Participant>> {
     const email = input.email.trim().toLowerCase()
 
-    if (await this.participantRepository.findByEmail(email)) {
+    const existingParticipant =
+      await this.participantRepository.findByEmail(email)
+
+    if (existingParticipant) {
       return left(new ParticipantAlreadyExistsError())
     }
 
     const participant = Participant.create({ name: input.name.trim(), email })
 
-    if (!(await this.participantRepository.create(participant))) {
+    const created = await this.participantRepository.create(participant)
+
+    if (!created) {
       return left(new ParticipantAlreadyExistsError())
     }
 

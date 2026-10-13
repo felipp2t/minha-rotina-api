@@ -45,9 +45,14 @@ beforeEach(async () => {
 
 afterAll(async () => {
   vi.restoreAllMocks()
+
   await app.close()
+
   setDatabase(undefined)
-  if (testDatabase) await testDatabase.close()
+
+  const databaseClose = testDatabase?.close()
+
+  if (databaseClose) await databaseClose
 })
 
 function payload() {
@@ -87,10 +92,15 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
       .from(habitGoals)
       .where(eq(habitGoals.id, goal.id))
     expect(row?.normalizedName).toBe('caminhar')
+
     const stored = await repository.findById(goal.id)
+
     expect(stored).toBeInstanceOf(HabitGoal)
     expect(stored && toHabitGoalDto(stored)).toEqual(goal)
-    expect(await repository.findById(randomUUID())).toBeNull()
+
+    const missingGoal = await repository.findById(randomUUID())
+
+    expect(missingGoal).toBeNull()
   })
 
   it.each([
@@ -106,7 +116,8 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
   ])(
     'accepts valid start dates including past, present and future: %s',
     async (startDate) => {
-      expect((await createGoal({ startDate })).statusCode).toBe(201)
+      const response = await createGoal({ startDate })
+      expect(response.statusCode).toBe(201)
     },
   )
 
@@ -131,14 +142,16 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
     ['startDate', '0000-01-01'],
   ])('rejects invalid %s: %s', async (field, value) => {
     const response = await createGoal({ [field]: value })
+
     expect(response.statusCode).toBe(400)
     expect(response.json().metadata.fields).toContainEqual({
       field,
       message: expect.any(String),
     })
-    expect(
-      await testDatabase.database.db.select().from(habitGoals),
-    ).toHaveLength(0)
+
+    const goals = await testDatabase.database.db.select().from(habitGoals)
+
+    expect(goals).toHaveLength(0)
   })
 
   it.each(['participantId', 'name', 'dailyTarget', 'unit', 'startDate'])(
@@ -146,11 +159,13 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
     async (field) => {
       const body: Record<string, unknown> = payload()
       delete body[field]
+
       const response = await app.inject({
         method: 'POST',
         url: '/goals',
         payload: body,
       })
+
       expect(response.statusCode).toBe(400)
       expect(response.json().metadata.fields).toContainEqual({
         field,
@@ -167,17 +182,23 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
         name: ` ${'a'.repeat(100)} `,
         dailyTarget: 2_147_483_647,
       })
+
       expect(response.statusCode).toBe(201)
       expect(response.json().name).toHaveLength(100)
-      expect(
-        (await createGoal({ unit, name: 'Minimum', dailyTarget: 1 }))
-          .statusCode,
-      ).toBe(201)
+
+      const minimum = await createGoal({
+        unit,
+        name: 'Minimum',
+        dailyTarget: 1,
+      })
+
+      expect(minimum.statusCode).toBe(201)
     },
   )
 
   it('returns the 404 contract for a missing participant', async () => {
     const response = await createGoal({ participantId: randomUUID() })
+
     expect(response.statusCode).toBe(404)
     expect(response.json()).toEqual({
       message: 'Participante não encontrado.',
@@ -191,6 +212,7 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
       normalizedName: 'foo',
       extra: true,
     })
+
     expect(body.statusCode).toBe(400)
     expect(
       body
@@ -198,7 +220,9 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
         .metadata.fields.map((item: { field: string }) => item.field)
         .sort(),
     ).toEqual(['extra', 'id', 'normalizedName'])
+
     const query = await createGoal({}, '/goals?extra=1&limit=20')
+
     expect(query.statusCode).toBe(400)
     expect(query.json().metadata.fields).toEqual([
       { field: 'extra', message: 'Parâmetro não permitido.' },
@@ -207,8 +231,12 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
   })
 
   it('rejects normalized duplicate future goals but permits different units and participants', async () => {
-    expect((await createGoal({ startDate: '2099-01-01' })).statusCode).toBe(201)
+    const first = await createGoal({ startDate: '2099-01-01' })
+
+    expect(first.statusCode).toBe(201)
+
     const duplicate = await createGoal({ name: ' CAMINHAR ' })
+
     expect(duplicate.statusCode).toBe(400)
     expect(duplicate.json()).toEqual({
       message: expect.any(String),
@@ -219,47 +247,64 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
         ],
       },
     })
-    expect((await createGoal({ unit: 'REPETITIONS' })).statusCode).toBe(201)
+
+    const differentUnit = await createGoal({ unit: 'REPETITIONS' })
+
+    expect(differentUnit.statusCode).toBe(201)
+
     const other = await app.inject({
       method: 'POST',
       url: '/participants',
       payload: { name: 'Bia', email: 'bia@example.com' },
     })
-    expect(
-      (await createGoal({ participantId: other.json().id })).statusCode,
-    ).toBe(201)
+
+    const otherGoal = await createGoal({ participantId: other.json().id })
+
+    expect(otherGoal.statusCode).toBe(201)
   })
 
   it('allows reuse after closure and maps closed goals for practice lookup', async () => {
     const first = (await createGoal()).json<HabitGoalDto>()
+
     await testDatabase.database.db
       .update(habitGoals)
       .set({ closedAt: '2026-10-10T15:00:00Z' })
       .where(eq(habitGoals.id, first.id))
-    expect((await repository.findById(first.id))?.closedAt).not.toBeNull()
-    expect((await createGoal()).statusCode).toBe(201)
-    expect(
-      await testDatabase.database.db.select().from(habitGoals),
-    ).toHaveLength(2)
+
+    const closedGoal = await repository.findById(first.id)
+
+    expect(closedGoal?.closedAt).not.toBeNull()
+
+    const replacement = await createGoal()
+
+    expect(replacement.statusCode).toBe(201)
+
+    const goals = await testDatabase.database.db.select().from(habitGoals)
+
+    expect(goals).toHaveLength(2)
   })
 
   it('protects simultaneous requests with the PostgreSQL partial unique index', async () => {
     const responses = await Promise.all(
       Array.from({ length: 6 }, () => createGoal({ startDate: '2099-01-01' })),
     )
+
     expect(responses.map((response) => response.statusCode).sort()).toEqual([
       201, 400, 400, 400, 400, 400,
     ])
-    expect(
-      await testDatabase.database.db.select().from(habitGoals),
-    ).toHaveLength(1)
+
+    const goals = await testDatabase.database.db.select().from(habitGoals)
+
+    expect(goals).toHaveLength(1)
   })
 
   it('does not translate unrelated database failures into duplicates', async () => {
     vi.spyOn(DrizzleHabitGoalRepository.prototype, 'create').mockRejectedValue(
       new Error('private connection details'),
     )
+
     const response = await createGoal()
+
     expect(response.statusCode).toBe(500)
     expect(response.json()).toEqual({
       message: 'Erro interno do servidor.',
@@ -269,13 +314,17 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
 
   it('creates a goal that the existing practice record route can use', async () => {
     const created = await createGoal({ startDate: '2000-01-01' })
+
     expect(created.statusCode).toBe(201)
+
     const goal = created.json<HabitGoalDto>()
+
     const recorded = await app.inject({
       method: 'POST',
       url: `/goals/${goal.id}/records`,
       payload: { date: '2000-01-01', quantity: 15 },
     })
+
     expect(recorded.statusCode).toBe(201)
     expect(recorded.json()).toEqual({
       id: expect.any(String),
@@ -283,21 +332,28 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
       date: '2000-01-01',
       quantity: 15,
     })
+
     await testDatabase.database.db
       .update(habitGoals)
       .set({ closedAt: '2026-10-10T15:00:00Z' })
       .where(eq(habitGoals.id, goal.id))
+
     const closed = await app.inject({
       method: 'POST',
       url: `/goals/${goal.id}/records`,
       payload: { date: '2000-01-01', quantity: 15 },
     })
+
     expect(closed.statusCode).toBe(400)
-    expect((await repository.findById(goal.id))?.isClosed).toBe(true)
+
+    const closedGoal = await repository.findById(goal.id)
+
+    expect(closedGoal?.isClosed).toBe(true)
   })
 
   it('documents creation and the public DTO in Swagger', () => {
     const paths = app.swagger().paths
+
     expect(paths).toHaveProperty('/goals')
     expect(paths?.['/goals']?.post?.responses).toHaveProperty('201')
     expect(paths?.['/goals']?.post?.responses).toHaveProperty('404')
