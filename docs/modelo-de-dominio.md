@@ -1,10 +1,10 @@
 # Minha Rotina: modelo de domínio
 
-Status: schemas e migrations das três tabelas implementados; modelo de participantes implementado; operações de metas e registros pendentes.
+Status: schemas, migrations e modelos das três entidades implementados; metas, registros e progresso diário disponíveis pela API.
 
 O [vocabulário](../CONTEXT.md) define os termos. O sistema acompanha metas diárias pessoais e preserva as quantidades praticadas ao longo do tempo.
 
-## Entidades e campos propostos
+## Entidades e campos
 
 | Entidade | Campos |
 |---|---|
@@ -68,4 +68,4 @@ Alvo e unidade não são alterados após o cadastro. Uma nova configuração exi
 
 ## Implementação
 
-As três tabelas estão definidas nos schemas Drizzle e são criadas por migrations SQL versionadas. Os modelos internos e DTOs serão separados; os Controllers não devolverão linhas do banco diretamente.
+As três tabelas estão definidas nos schemas Drizzle e são criadas por migrations SQL versionadas. Os modelos internos e DTOs são separados; os controllers não devolvem linhas do banco diretamente. O progresso diário é calculado sob consulta e não possui tabela própria.

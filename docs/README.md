@@ -1,6 +1,6 @@
 # Documentação do Minha Rotina
 
-Status: configuração, banco e participantes implementados; demais operações planejadas.
+Status: operações de participantes, metas, registros, histórico e progresso diário implementadas e integradas à `main` pelo PR #17.
 
 Esta documentação segue a organização do projeto de referência `lupia-sales-voice`, adaptada à entrega da disciplina de Backend.
 
