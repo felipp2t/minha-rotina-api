@@ -6,6 +6,7 @@ import type { Database } from '../../database.js'
 import { DrizzleHabitGoalMapper } from '../mappers/drizzle-habit-goal-mapper.js'
 import { habitGoals } from '../schema/habit-goals.js'
 
+// Persists habit goals and performs atomic closure and paginated lookups.
 export class DrizzleHabitGoalRepository implements HabitGoalRepository {
   constructor(private readonly database: Database) {}
 
