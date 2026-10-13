@@ -9,6 +9,27 @@ import { habitGoals } from '../schema/habit-goals.js'
 export class DrizzleHabitGoalRepository implements HabitGoalRepository {
   constructor(private readonly database: Database) {}
 
+  // FOR UPDATE conflicts with the practice writer's FOR SHARE lock.
+  // Timestamp is determined after acquiring the lock, and only on first closure.
+  close(id: string): Promise<HabitGoal | null> {
+    return this.database.db.transaction(async (transaction) => {
+      const [goal] = await transaction
+        .select()
+        .from(habitGoals)
+        .where(eq(habitGoals.id, id))
+        .for('update')
+      if (!goal) return null
+      if (goal.closedAt !== null) return DrizzleHabitGoalMapper.toDomain(goal)
+      const [closed] = await transaction
+        .update(habitGoals)
+        .set({ closedAt: sql`clock_timestamp()` })
+        .where(eq(habitGoals.id, id))
+        .returning()
+      if (!closed) throw new Error('Locked goal disappeared during closure')
+      return DrizzleHabitGoalMapper.toDomain(closed)
+    })
+  }
+
   async create(goal: HabitGoal): Promise<boolean> {
     const rows = await this.database.db
       .insert(habitGoals)

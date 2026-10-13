@@ -7,6 +7,7 @@ import {
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
+import { closeHabitGoalController } from './infra/http/controllers/close-habit-goal.controller.js'
 import { createHabitGoalController } from './infra/http/controllers/create-habit-goal.controller.js'
 import { createParticipantController } from './infra/http/controllers/create-participant.controller.js'
 import { createPracticeRecordController } from './infra/http/controllers/create-practice-record.controller.js'
@@ -30,6 +31,7 @@ export function buildApp({ logger = false }: { logger?: boolean } = {}) {
     transform: jsonSchemaTransform,
   })
   app.register(swaggerUi, { routePrefix: '/docs' })
+  app.register(closeHabitGoalController)
   app.register(getHabitGoalController)
   app.register(getParticipantGoalsController)
   app.register(createHabitGoalController)

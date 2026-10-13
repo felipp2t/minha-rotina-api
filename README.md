@@ -229,7 +229,7 @@ Para concluir essa validação na máquina de desenvolvimento, siga “Como exec
 
 A entidade e o contrato acima são os pontos compartilhados. Para consultar a meta, injete `HabitGoalRepository` no caso de uso dos registros e chame `findById(goalId)`: retorna `HabitGoal | null`, incluindo metas encerradas. `closedAt` permanece `Date | null` no domínio e `isClosed` permanece disponível, conforme a implementação dos registros. O chamador pode consultar `startDate`, `unit`, `dailyTarget` e `closedAt` para aplicar as regras dos registros. IDs são `UniqueEntityID` no domínio; use `.toString()` ao montar DTOs. A factory pode usar `new DrizzleHabitGoalRepository(getDatabase())`.
 
-Nenhum schema ou migration existente foi alterado. Consulta HTTP e encerramento serão implementados nas issues correspondentes.
+Nenhum schema ou migration existente foi alterado. Consulta HTTP e encerramento foram implementados nas issues #2 e #3.
 
 ## Situação da entrega
 
@@ -240,9 +240,9 @@ Nenhum schema ou migration existente foi alterado. Consulta HTTP e encerramento 
 | Contrato da API | Documentado, com detalhes técnicos propostos |
 | Divisão de tarefas e roteiro de testes | Documentados |
 | Banco e migrations | Três tabelas criadas, com constraints e chaves estrangeiras |
-| Estrutura do código | Participantes, criação e consulta de metas e cadastro de registros implementados; demais operações pendentes |
+| Estrutura do código | Participantes, criação/consulta/encerramento de metas, registros e progresso diário implementados |
 | API simples | Cadastro, listagem paginada e busca de participantes implementados e testados |
-| Regras R1–R5 pela API | R2 e R3 no cadastro de registros; R5 na criação de metas; R1 e R4 pendentes |
+| Regras R1–R5 pela API | R2 e R3 no cadastro de registros; R5 na criação de metas; R1 no encerramento; R4 no progresso diário |
 | Autoavaliação | Ficha criada; verificação da implementação pendente |
 
 ## Prazos
@@ -271,3 +271,19 @@ Os arquivos originais foram preservados em `docs/enunciado/`:
 - [Enunciado do trabalho](docs/enunciado/README.md).
 - [Critérios de avaliação](docs/enunciado/AVALIACAO.md).
 - [Orientações de arquitetura](docs/enunciado/ARQUITETURA.md).
+
+## Implementação do encerramento de metas (issue #3)
+
+- `POST /goals/{id}/closure` retorna `200` com o DTO da meta. O servidor PostgreSQL determina `closedAt` após obter o bloqueio da linha. Repetições, inclusive concorrentes, mantêm exatamente o primeiro instante.
+- UUID inválido ou parâmetros de consulta retornam `400`; meta inexistente retorna `404`, com `message` e `metadata.fields`.
+- O contrato `HabitGoalRepository.close` encapsula a operação atômica. Caso de uso, factory e controller seguem as camadas existentes. Alvo, unidade e registros históricos são preservados; não foram criadas rotas para editá-los.
+- A transação usa `SELECT ... FOR UPDATE`, incompatível com o `FOR SHARE` já usado pelo cadastro de registros. Uma gravação anterior termina antes do encerramento; uma gravação posterior aguarda e verifica novamente se a meta está aberta.
+- O índice parcial existente permite criar outra meta com o mesmo nome/unidade após encerrar a anterior, inclusive com outro alvo. Nenhum schema ou migration foi alterado.
+- Testes unitários e HTTP em memória acompanham as implementações; `test/integrations/goal-closure.integration.spec.ts` verifica o histórico, concorrência, bloqueios, nova meta e erros no PostgreSQL.
+
+### Validação da issue #3
+
+- `pnpm typecheck`, `pnpm lint`, `pnpm build` e `pnpm openapi`: aprovados.
+- `pnpm test:unit`: 111 testes aprovados, incluindo encerramento e respostas HTTP em memória.
+- `pnpm test:integration`: tentado; as suítes não inicializaram porque `TEST_DATABASE_URL`/`DATABASE_URL` não está configurada e não há PostgreSQL disponível. Os oito testes novos com PostgreSQL estão pendentes de execução.
+- Execute `pnpm test:integration` com PostgreSQL configurado antes de considerar a issue totalmente verificada, especialmente os bloqueios e encerramentos concorrentes.

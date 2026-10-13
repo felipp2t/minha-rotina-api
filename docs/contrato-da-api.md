@@ -1,6 +1,6 @@
 # Minha Rotina: contrato da API
 
-Status: rotas de participantes, `POST /goals`, `GET /goals/{id}`, `GET /participants/{id}/goals`, `POST /goals/{id}/records`, `GET /goals/{id}/records`, `GET /goals/{goalId}/records/{id}` e `GET /goals/{id}/progress` implementadas e testadas; encerramento de metas permanece planejado.
+Status: rotas de participantes, `POST /goals`, `GET /goals/{id}`, `GET /participants/{id}/goals`, `POST /goals/{id}/records`, `GET /goals/{id}/records`, `GET /goals/{goalId}/records/{id}` e `GET /goals/{id}/progress` implementadas e testadas; `POST /goals/{id}/closure` também implementado.
 
 ## Convenções
 
@@ -122,7 +122,7 @@ Sem corpo de entrada. Saída `200`:
 {"id":"189bc8fc-9e93-4c18-a48e-d11fd7ad4b02","participantId":"72f43a86-cf1a-4d20-b60a-3a9c92e5d8f1","name":"Caminhar","dailyTarget":30,"unit":"MINUTES","startDate":"2026-10-09","closedAt":"2026-10-10T15:00:00Z"}
 ```
 
-O servidor determina o instante de encerramento. Comportamento confirmado: repetir a operação mantém o primeiro instante e retorna a meta encerrada com `200`. Meta inexistente retorna `404`. Alvo e unidade não possuem rota de alteração.
+O servidor determina o instante de encerramento. Comportamento confirmado: repetir a operação mantém o primeiro instante e retorna a meta encerrada com `200`. Meta inexistente retorna `404`. UUID inválido e parâmetros de consulta não permitidos retornam `400`. Alvo e unidade não possuem rota de alteração. O encerramento usa uma transação com bloqueio da meta, coordenada com a criação de registros; somente `closedAt` é atualizado.
 
 ## Registros e progresso
 

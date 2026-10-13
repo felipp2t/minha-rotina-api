@@ -46,6 +46,10 @@ export class HabitGoal extends Entity<HabitGoalProps> {
     return this.props.closedAt !== null
   }
 
+  close(at: Date) {
+    this.props.closedAt ??= at
+  }
+
   static create(
     props: Omit<HabitGoalProps, 'closedAt'> & { closedAt?: Date | null },
     id?: UniqueEntityID,
