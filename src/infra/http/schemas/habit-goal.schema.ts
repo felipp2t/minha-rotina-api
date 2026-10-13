@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type { HabitGoal } from '../../../domain/habits/enterprise/entities/habit-goal.js'
+import { participantListQuerySchema } from './participant.schema.js'
 
 export const habitGoalUnitSchema = z.enum(['ML', 'MINUTES', 'REPETITIONS'])
 export const createHabitGoalBodySchema = z.strictObject({
@@ -39,3 +40,17 @@ export function toHabitGoalDto(goal: HabitGoal): HabitGoalDto {
     closedAt: goal.closedAt?.toISOString() ?? null,
   }
 }
+
+export const habitGoalIdParamsSchema = z.strictObject({
+  id: z.uuid('Informe um UUID válido.'),
+})
+export const habitGoalListQuerySchema = participantListQuerySchema
+export const habitGoalListSchema = z.object({
+  data: z.array(habitGoalSchema),
+  pagination: z.object({
+    page: z.number().int(),
+    limit: z.number().int(),
+    total: z.number().int(),
+    totalPages: z.number().int(),
+  }),
+})

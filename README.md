@@ -2,7 +2,7 @@
 
 Backend para acompanhamento de hábitos saudáveis, desenvolvido como projeto da disciplina de Backend (Engenharia de Software), no tema **Saúde e Bem-Estar**.
 
-**Status:** configuração, PostgreSQL, API de participantes, criação de metas (R5) e cadastro de registros de prática (R2 e R3) implementados. Consulta e encerramento de metas, histórico de registros e progresso diário permanecem planejados.
+**Status:** configuração, PostgreSQL, API de participantes, criação e consulta de metas (R5 e issue #2) e cadastro de registros de prática (R2 e R3) implementados. Encerramento de metas, histórico de registros e progresso diário permanecem planejados.
 
 ## Problema e público
 
@@ -94,7 +94,7 @@ URL base local: `http://localhost:3333`.
 | GET | `/goals/{goalId}/records/{id}` | Buscar um registro da meta |
 | GET | `/goals/{id}/progress?date=AAAA-MM-DD` | Consultar progresso diário |
 
-As três rotas de participantes estão implementadas, com `400` para campos inválidos ou e-mail duplicado e `404` para participante inexistente. `POST /goals/{id}/records` está implementada, com `400` para campos inválidos e violações de R2/R3 e `404` para meta inexistente. `POST /goals` está implementada, com `201` e o DTO público, `400` para entradas inválidas ou duplicatas não encerradas e `404` para participante inexistente. As demais rotas permanecem planejadas. Exemplos de JSON e respostas estão no [contrato da API](docs/contrato-da-api.md).
+As três rotas de participantes estão implementadas, com `400` para campos inválidos ou e-mail duplicado e `404` para participante inexistente. `POST /goals/{id}/records` está implementada, com `400` para campos inválidos e violações de R2/R3 e `404` para meta inexistente. `POST /goals` está implementada, com `201` e o DTO público, `400` para entradas inválidas ou duplicatas não encerradas e `404` para participante inexistente. `GET /goals/{id}` e `GET /participants/{id}/goals` estão implementadas, com `400` para UUIDs e parâmetros inválidos e `404` para meta ou participante inexistente. As demais rotas permanecem planejadas. Exemplos de JSON e respostas estão no [contrato da API](docs/contrato-da-api.md).
 
 As três listagens aceitam `page` e `limit` (padrões 1 e 20, máximo de 100 itens por página) e retornam `data` e `pagination` com os totais.
 
@@ -188,6 +188,23 @@ O caso de uso busca a meta e aplica as regras: meta inexistente (`404`), meta en
 
 Para garantir R3 também numa corrida com o encerramento, `DrizzlePracticeRecordRepository.create` lê a meta aberta com `SELECT ... FOR SHARE` na mesma transação do `INSERT` e retorna `false` se ela já estiver encerrada, como o cadastro de participantes faz com e-mails duplicados. O encerramento só precisa atualizar `closed_at` com um `UPDATE` na linha da meta. O [manual do registro de prática](docs/implementation/manual-registro-de-pratica.md) explica o fluxo completo.
 
+## Implementação da consulta e listagem de metas (issue #2)
+
+- `GET /goals/{id}` devolve o DTO público, inclusive de metas encerradas ou com início futuro. Meta inexistente retorna `404`.
+- `GET /participants/{id}/goals` verifica se o participante existe (`404`) e lista somente suas metas, incluindo encerradas e futuras. Ordena por nome e UUID crescentes antes de aplicar a paginação.
+- `page` e `limit` seguem os padrões 1 e 20; `limit` permite de 1 a 100. UUIDs, parâmetros inválidos e queries desconhecidas retornam `400`, com `message` e `metadata.fields` e sem status no corpo.
+- A resposta da listagem contém `data` e `pagination` (`page`, `limit`, `total`, `totalPages`). Páginas além da última retornam uma lista vazia e os totais reais. Sem metas, `totalPages` é zero.
+- O Repository Drizzle conta e lê a página na mesma transação somente de leitura com isolamento `repeatable read`, preservando a consistência dos totais. Não foram alterados schemas nem migrations do banco.
+- A entidade, o mapper e o DTO da issue #1 foram reutilizados. Novos casos de uso, factories, controllers e schemas seguem a organização de participantes. As rotas são registradas em `buildApp` e em `openapi.json`.
+- Testes dos casos de uso ficam junto às implementações. Testes HTTP com repositórios em memória estão em `src/infra/http/controllers/goal-queries.controller.spec.ts`; os 22 testes HTTP com PostgreSQL estão em `test/integrations/goal-queries.integration.spec.ts`.
+
+### Validação da issue #2
+
+- `pnpm typecheck`, `pnpm lint`, `pnpm build` e `pnpm openapi`: aprovados.
+- `pnpm test:unit`: 84 testes aprovados, incluindo consulta/listagem via HTTP com repositórios em memória.
+- `pnpm test:integration`: tentado, mas as quatro suítes não conseguiram inicializar por ausência de `TEST_DATABASE_URL`/`DATABASE_URL` e PostgreSQL disponível neste ambiente. Os testes de integração foram adicionados, mas a verificação real no PostgreSQL está pendente.
+- Para finalizar a verificação, configure PostgreSQL conforme “Como executar” e execute `pnpm test:integration`. A URL de testes deve permitir criar e remover bancos temporários isolados. Não considere a issue totalmente verificada antes de essa execução passar.
+
 ## Implementação da criação de metas (issue #1)
 
 `POST /goals` segue o contrato da API e a organização de participantes:
@@ -223,7 +240,7 @@ Nenhum schema ou migration existente foi alterado. Consulta HTTP e encerramento 
 | Contrato da API | Documentado, com detalhes técnicos propostos |
 | Divisão de tarefas e roteiro de testes | Documentados |
 | Banco e migrations | Três tabelas criadas, com constraints e chaves estrangeiras |
-| Estrutura do código | Participantes, criação de metas e cadastro de registros implementados; demais operações pendentes |
+| Estrutura do código | Participantes, criação e consulta de metas e cadastro de registros implementados; demais operações pendentes |
 | API simples | Cadastro, listagem paginada e busca de participantes implementados e testados |
 | Regras R1–R5 pela API | R2 e R3 no cadastro de registros; R5 na criação de metas; R1 e R4 pendentes |
 | Autoavaliação | Ficha criada; verificação da implementação pendente |
