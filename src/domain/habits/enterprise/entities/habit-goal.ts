@@ -12,28 +12,26 @@ export interface HabitGoalProps {
   closedAt: Date | null
 }
 
-// Daily goal whose target and unit stay fixed; closing it preserves its history.
+// Shares goal data with creation, lookup and practice use cases.
 export class HabitGoal extends Entity<HabitGoalProps> {
   get participantId() {
     return this.props.participantId
   }
-
   get name() {
     return this.props.name
   }
-
+  get normalizedName() {
+    return this.props.name.trim().toLowerCase()
+  }
   get dailyTarget() {
     return this.props.dailyTarget
   }
-
   get unit() {
     return this.props.unit
   }
-
   get startDate() {
     return this.props.startDate
   }
-
   get closedAt() {
     return this.props.closedAt
   }
@@ -42,7 +40,13 @@ export class HabitGoal extends Entity<HabitGoalProps> {
     return this.props.closedAt !== null
   }
 
-  static create(props: HabitGoalProps, id?: UniqueEntityID) {
-    return new HabitGoal({ ...props }, id)
+  static create(
+    props: Omit<HabitGoalProps, 'closedAt'> & { closedAt?: Date | null },
+    id?: UniqueEntityID,
+  ) {
+    return new HabitGoal(
+      { ...props, name: props.name.trim(), closedAt: props.closedAt ?? null },
+      id,
+    )
   }
 }
