@@ -2,7 +2,7 @@
 
 Backend para acompanhamento de hábitos saudáveis, desenvolvido como projeto da disciplina de Backend (Engenharia de Software), no tema **Saúde e Bem-Estar**.
 
-**Status:** configuração, PostgreSQL e API de participantes implementados. Metas, registros e progresso diário ainda estão em planejamento.
+**Status:** configuração, PostgreSQL, API de participantes e cadastro de registros de prática (R2 e R3) implementados. Metas, histórico de registros e progresso diário ainda estão em planejamento.
 
 ## Problema e público
 
@@ -94,7 +94,7 @@ URL base local: `http://localhost:3333`.
 | GET | `/goals/{goalId}/records/{id}` | Buscar um registro da meta |
 | GET | `/goals/{id}/progress?date=AAAA-MM-DD` | Consultar progresso diário |
 
-As três rotas de participantes estão implementadas, com `400` para campos inválidos ou e-mail duplicado e `404` para participante inexistente. As demais rotas permanecem planejadas. Exemplos de JSON e respostas estão no [contrato da API](docs/contrato-da-api.md).
+As três rotas de participantes estão implementadas, com `400` para campos inválidos ou e-mail duplicado e `404` para participante inexistente. `POST /goals/{id}/records` está implementada, com `400` para campos inválidos e violações de R2/R3 e `404` para meta inexistente. As demais rotas permanecem planejadas. Exemplos de JSON e respostas estão no [contrato da API](docs/contrato-da-api.md).
 
 As três listagens aceitam `page` e `limit` (padrões 1 e 20, máximo de 100 itens por página) e retornam `data` e `pagination` com os totais.
 
@@ -169,6 +169,24 @@ PRs para `main` e `develop` exigem o check `Backend checks` aprovado e a branch 
 
 Os casos de uso recebem o contrato de Repository por construtor e retornam falhas esperadas por `Either`. Os controllers devolvem DTOs explícitos. A unicidade de e-mail também é garantida pelo banco; conflitos em cadastros simultâneos retornam `400`.
 
+## Mapa da implementação de registros de prática
+
+| Responsabilidade | Arquivo em `src/` |
+|---|---|
+| Modelos de domínio | `domain/habits/enterprise/entities/practice-record.ts`, `habit-goal.ts` |
+| Data de hoje em São Paulo | `domain/habits/enterprise/services/today-in-sao-paulo.ts` |
+| Contratos de persistência | `domain/habits/application/repositories/practice-record-repository.ts`, `habit-goal-repository.ts` |
+| Caso de uso / Service (R2 e R3) | `domain/habits/application/use-cases/create-practice-record.ts` |
+| Erros de domínio | `domain/habits/application/use-cases/errors/habit-goal-not-found-error.ts`, `habit-goal-closed-error.ts`, `invalid-practice-date-error.ts` |
+| Repositories PostgreSQL | `infra/db/drizzle/repositories/practice-record-repository.ts`, `habit-goal-repository.ts` |
+| Mappers de persistência | `infra/db/drizzle/mappers/drizzle-practice-record-mapper.ts`, `drizzle-habit-goal-mapper.ts` |
+| DTOs e conversão pública | `infra/http/schemas/practice-record.schema.ts` |
+| Controller | `infra/http/controllers/create-practice-record.controller.ts` |
+| Composição por construtor | `infra/http/factories/make-create-practice-record-use-case.ts` |
+
+O caso de uso busca a meta e aplica as regras: meta inexistente (`404`), meta encerrada (R3) e data fora do intervalo entre o início da meta e hoje em `America/Sao_Paulo` (R2), inclusive para metas com início futuro. Os testes fixam a data do sistema para verificar os limites sem depender do dia da execução.
+
+Para garantir R3 também numa corrida com o encerramento, `DrizzlePracticeRecordRepository.create` lê a meta aberta com `SELECT ... FOR SHARE` na mesma transação do `INSERT` e retorna `false` se ela já estiver encerrada, como o cadastro de participantes faz com e-mails duplicados. O encerramento só precisa atualizar `closed_at` com um `UPDATE` na linha da meta. O [manual do registro de prática](docs/implementation/manual-registro-de-pratica.md) explica o fluxo completo.
 
 ## Situação da entrega
 
@@ -179,9 +197,9 @@ Os casos de uso recebem o contrato de Repository por construtor e retornam falha
 | Contrato da API | Documentado, com detalhes técnicos propostos |
 | Divisão de tarefas e roteiro de testes | Documentados |
 | Banco e migrations | Três tabelas criadas, com constraints e chaves estrangeiras |
-| Estrutura do código | Participantes implementados; metas e registros pendentes |
+| Estrutura do código | Participantes e cadastro de registros implementados; metas, histórico e progresso pendentes |
 | API simples | Cadastro, listagem paginada e busca de participantes implementados e testados |
-| Regras R1–R5 pela API | Pendentes; constraints de banco preparadas |
+| Regras R1–R5 pela API | R2 e R3 implementadas e testadas no cadastro de registros; R1, R4 e R5 pendentes; constraints de banco preparadas |
 | Autoavaliação | Ficha criada; verificação da implementação pendente |
 
 ## Prazos
