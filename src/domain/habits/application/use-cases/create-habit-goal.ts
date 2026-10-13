@@ -36,15 +36,6 @@ export class CreateHabitGoalUseCase {
       ...input,
       participantId: new UniqueEntityID(input.participantId),
     })
-    if (
-      await this.habitGoalRepository.findActiveByParticipantNameAndUnit(
-        input.participantId,
-        goal.normalizedName,
-        goal.unit,
-      )
-    ) {
-      return left(new HabitGoalAlreadyExistsError())
-    }
     if (!(await this.habitGoalRepository.create(goal))) {
       return left(new HabitGoalAlreadyExistsError())
     }

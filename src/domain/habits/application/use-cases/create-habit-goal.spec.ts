@@ -88,7 +88,7 @@ describe('Create habit goal', () => {
     expect((await useCase.execute(input)).isRight()).toBe(true)
     expect(goals.items).toHaveLength(2)
   })
-  it('translates a persistence conflict after the lookup', async () => {
+  it('translates a duplicate reported by persistence', async () => {
     vi.spyOn(goals, 'create').mockResolvedValue(false)
     expect((await useCase.execute(input)).value).toBeInstanceOf(
       HabitGoalAlreadyExistsError,

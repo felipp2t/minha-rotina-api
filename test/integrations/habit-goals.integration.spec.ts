@@ -230,11 +230,6 @@ describe('Habit goal creation HTTP API with PostgreSQL', () => {
     ).toHaveLength(2)
   })
   it('protects simultaneous requests with the PostgreSQL partial unique index', async () => {
-    // Force every pre-check to miss, so the database must arbitrate the race.
-    vi.spyOn(
-      DrizzleHabitGoalRepository.prototype,
-      'findActiveByParticipantNameAndUnit',
-    ).mockResolvedValue(null)
     const responses = await Promise.all(
       Array.from({ length: 6 }, () => createGoal({ startDate: '2099-01-01' })),
     )

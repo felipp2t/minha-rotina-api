@@ -194,8 +194,8 @@ Para garantir R3 também numa corrida com o encerramento, `DrizzlePracticeRecord
 
 - `HabitGoal` em `src/domain/habits/enterprise/entities/habit-goal.ts` herda `Entity`, usa `UniqueEntityID` e mantém alvo e unidade sem setters.
 - `CreateHabitGoalUseCase` verifica o participante, normaliza o nome e aplica R5.
-- `HabitGoalRepository` em `src/domain/habits/application/repositories/habit-goal-repository.ts` oferece `create`, `findById` e `findActiveByParticipantNameAndUnit`.
-- `DrizzleHabitGoalRepository` e `DrizzleHabitGoalMapper` fazem a persistência. `ON CONFLICT` usa o índice parcial existente `habit_goals_active_unique`, impedindo duplicatas mesmo após duas consultas simultâneas sem resultado.
+- `HabitGoalRepository` em `src/domain/habits/application/repositories/habit-goal-repository.ts` oferece `create` e `findById`.
+- `DrizzleHabitGoalRepository` e `DrizzleHabitGoalMapper` fazem a persistência. A criação usa `ON CONFLICT` com o índice parcial `habit_goals_active_unique`, que impede duplicatas e arbitra requisições concorrentes numa única operação.
 - Schema/DTO, controller e factory ficam em `infra/http`. `normalizedName` é interno; o DTO contém apenas `id`, `participantId`, `name`, `dailyTarget`, `unit`, `startDate` e `closedAt`.
 - Corpo e query são estritos. O alvo aceita inteiros de 1 a 2.147.483.647, limite da coluna PostgreSQL existente. Datas válidas no formato `AAAA-MM-DD`, a partir do ano 0001, podem ser passadas, atuais ou futuras.
 - Testes unitários estão junto ao caso de uso e testes HTTP em `test/integrations/habit-goals.integration.spec.ts`.

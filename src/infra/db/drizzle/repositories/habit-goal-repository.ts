@@ -1,9 +1,6 @@
-import { and, eq, isNull, sql } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import type { HabitGoalRepository } from '../../../../domain/habits/application/repositories/habit-goal-repository.js'
-import type {
-  HabitGoal,
-  HabitGoalUnit,
-} from '../../../../domain/habits/enterprise/entities/habit-goal.js'
+import type { HabitGoal } from '../../../../domain/habits/enterprise/entities/habit-goal.js'
 import type { Database } from '../../database.js'
 import { DrizzleHabitGoalMapper } from '../mappers/drizzle-habit-goal-mapper.js'
 import { habitGoals } from '../schema/habit-goals.js'
@@ -32,26 +29,6 @@ export class DrizzleHabitGoalRepository implements HabitGoalRepository {
       .select()
       .from(habitGoals)
       .where(eq(habitGoals.id, id))
-      .limit(1)
-    return row ? DrizzleHabitGoalMapper.toDomain(row) : null
-  }
-
-  async findActiveByParticipantNameAndUnit(
-    participantId: string,
-    normalizedName: string,
-    unit: HabitGoalUnit,
-  ): Promise<HabitGoal | null> {
-    const [row] = await this.database.db
-      .select()
-      .from(habitGoals)
-      .where(
-        and(
-          eq(habitGoals.participantId, participantId),
-          eq(habitGoals.normalizedName, normalizedName),
-          eq(habitGoals.unit, unit),
-          isNull(habitGoals.closedAt),
-        ),
-      )
       .limit(1)
     return row ? DrizzleHabitGoalMapper.toDomain(row) : null
   }

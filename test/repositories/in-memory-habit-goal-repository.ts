@@ -1,8 +1,5 @@
 import type { HabitGoalRepository } from '../../src/domain/habits/application/repositories/habit-goal-repository.js'
-import type {
-  HabitGoal,
-  HabitGoalUnit,
-} from '../../src/domain/habits/enterprise/entities/habit-goal.js'
+import type { HabitGoal } from '../../src/domain/habits/enterprise/entities/habit-goal.js'
 
 export class InMemoryHabitGoalRepository implements HabitGoalRepository {
   items: HabitGoal[] = []
@@ -22,20 +19,5 @@ export class InMemoryHabitGoalRepository implements HabitGoalRepository {
   }
   async findById(id: string) {
     return this.items.find((goal) => goal.id.toString() === id) ?? null
-  }
-  async findActiveByParticipantNameAndUnit(
-    participantId: string,
-    normalizedName: string,
-    unit: HabitGoalUnit,
-  ) {
-    return (
-      this.items.find(
-        (goal) =>
-          goal.participantId.toString() === participantId &&
-          goal.normalizedName === normalizedName &&
-          goal.unit === unit &&
-          goal.closedAt === null,
-      ) ?? null
-    )
   }
 }
