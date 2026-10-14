@@ -6,9 +6,9 @@ Backend para acompanhamento de hábitos saudáveis, desenvolvido como projeto da
 
 ## Problema e público
 
-Pessoas que desejam manter uma rotina saudável precisam acompanhar quanto praticaram em cada dia e consultar seu histórico. O Minha Rotina permite definir metas pessoais diárias e registrar quantidades realizadas, reunindo o acompanhamento em um único sistema.
+Pessoas que desejam manter uma rotina saudável, precisam acompanhar quanto exercício físico praticaram em cada dia e consultar seu histórico. O Minha Rotina permite definir metas pessoais diárias e registrar as quantidades realizadas, reunindo o acompanhamento em um único sistema.
 
-Por exemplo, uma pessoa define a meta “Caminhar”, com alvo de 30 minutos por dia. Registra 15 minutos pela manhã e 20 à tarde. O sistema apresenta 35 minutos realizados e considera o dia cumprido, mantendo os dois registros no histórico.
+Por exemplo, uma pessoa define a meta “Caminhar”, com alvo de 30 minutos por dia. Registra 15 minutos pela manhã e 20 à tarde. O sistema apresenta 35 minutos realizados e considera a meta diária cumprida, mantendo os dois registros no histórico.
 
 ## Integrantes
 
