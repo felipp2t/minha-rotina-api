@@ -8,7 +8,6 @@ import {
   toPracticeRecordDto,
 } from '../schemas/practice-record.schema.js'
 
-// Registers the goal history ordered by date and UUID, paginated with complete totals.
 export const getPracticeRecordsController: FastifyPluginCallbackZod = (
   app,
   _options,

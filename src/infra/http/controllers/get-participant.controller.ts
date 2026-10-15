@@ -8,7 +8,6 @@ import {
   toParticipantDto,
 } from '../schemas/participant.schema.js'
 
-// Registers UUID lookup and maps the domain's not-found error to HTTP 404.
 export const getParticipantController: FastifyPluginCallbackZod = (
   app,
   _options,

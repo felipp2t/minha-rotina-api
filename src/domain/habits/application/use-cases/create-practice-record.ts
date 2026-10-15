@@ -18,8 +18,6 @@ type CreatePracticeRecordError =
   | HabitGoalClosedError
   | InvalidPracticeDateError
 
-// Registers a practice applying R3 (closed goal) and R2 (start date to today).
-// Several records on the same date and totals above the daily target are allowed.
 export class CreatePracticeRecordUseCase {
   constructor(
     private readonly habitGoalRepository: HabitGoalRepository,
@@ -36,13 +34,14 @@ export class CreatePracticeRecordUseCase {
     }
 
     if (goal.isClosed) {
+      // REGRA: R3 metas encerradas não aceitam novos registros, nem retroativos.
       return left(new HabitGoalClosedError())
     }
 
-    // Dates in YYYY-MM-DD format can be compared as text.
     const today = todayInSaoPaulo()
 
     if (goal.startDate > today) {
+      // REGRA: R2 registros só podem ser feitos entre o início da meta e hoje.
       return left(
         new InvalidPracticeDateError(
           `A meta ainda não começou; registros são aceitos a partir de ${goal.startDate}.`,
@@ -72,7 +71,6 @@ export class CreatePracticeRecordUseCase {
       quantity: input.quantity,
     })
 
-    // The goal may have been closed after the lookup above (R3 race).
     const created = await this.practiceRecordRepository.create(record)
 
     if (!created) {

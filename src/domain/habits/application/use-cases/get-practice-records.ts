@@ -14,7 +14,6 @@ export interface GetPracticeRecordsOutput {
   pagination: { page: number; limit: number; total: number; totalPages: number }
 }
 
-// Lists a goal's history, including closed goals, with complete pagination totals.
 export class GetPracticeRecordsUseCase {
   constructor(
     private readonly habitGoalRepository: HabitGoalRepository,

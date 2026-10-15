@@ -17,7 +17,6 @@ export interface CreateHabitGoalInput {
   startDate: string
 }
 
-// Enforces participant existence and R5; persistence also protects concurrent writes.
 export class CreateHabitGoalUseCase {
   constructor(
     private readonly participantRepository: ParticipantRepository,
@@ -42,6 +41,7 @@ export class CreateHabitGoalUseCase {
       participantId: new UniqueEntityID(input.participantId),
     })
 
+    // REGRA: R5 — rejeita outra meta aberta com o mesmo nome normalizado e unidade.
     const created = await this.habitGoalRepository.create(goal)
     if (!created) {
       return left(new HabitGoalAlreadyExistsError())

@@ -12,7 +12,6 @@ import {
 } from 'drizzle-orm/pg-core'
 import { participants } from './participants.js'
 
-// Stores daily goals and prevents duplicate goals that have not been closed.
 export const habitGoals = pgTable(
   'habit_goals',
   {
@@ -41,6 +40,7 @@ export const habitGoals = pgTable(
       'habit_goals_unit_check',
       sql`${table.unit} in ('ML', 'MINUTES', 'REPETITIONS')`,
     ),
+    // REGRA: R5 — garante unicidade entre metas abertas do mesmo participante.
     uniqueIndex('habit_goals_active_unique')
       .on(table.participantId, table.normalizedName, table.unit)
       .where(sql`${table.closedAt} is null`),

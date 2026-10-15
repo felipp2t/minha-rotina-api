@@ -1,7 +1,6 @@
 import { sql } from 'drizzle-orm'
 import { check, pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core'
 
-// Stores participants and guarantees normalized, unique email addresses.
 export const participants = pgTable(
   'participants',
   {

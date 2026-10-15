@@ -8,7 +8,6 @@ import {
   goalIdParamsSchema,
 } from '../schemas/practice-record.schema.js'
 
-// Registers the daily progress (R4); missing goals map to 404 and invalid dates to 400.
 export const getDailyProgressController: FastifyPluginCallbackZod = (
   app,
   _options,

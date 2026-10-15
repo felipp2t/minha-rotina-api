@@ -20,7 +20,6 @@ import { getPracticeRecordController } from './infra/http/controllers/get-practi
 import { getPracticeRecordsController } from './infra/http/controllers/get-practice-records.controller.js'
 import { registerErrorHandler } from './infra/http/error-handler.js'
 
-// Builds the HTTP application without opening a database or a listening socket.
 export function buildApp({ logger = false }: { logger?: boolean } = {}) {
   const app = fastify({ logger }).withTypeProvider<ZodTypeProvider>()
   app.setValidatorCompiler(validatorCompiler)

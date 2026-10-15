@@ -8,7 +8,6 @@ import {
   toPracticeRecordDto,
 } from '../schemas/practice-record.schema.js'
 
-// Registers the lookup of one record inside its goal; any not-found case maps to 404.
 export const getPracticeRecordController: FastifyPluginCallbackZod = (
   app,
   _options,

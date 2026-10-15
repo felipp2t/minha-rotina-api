@@ -11,7 +11,6 @@ export interface GetDailyProgressInput {
   date: string
 }
 
-// Progress is calculated on demand from the records; it is not stored.
 export interface DailyProgress {
   goalId: string
   date: string
@@ -21,8 +20,6 @@ export interface DailyProgress {
   completed: boolean
 }
 
-// R4: sums the goal's records on the date; the day is completed when the total
-// reaches or exceeds the daily target. Closed goals can still be consulted.
 export class GetDailyProgressUseCase {
   constructor(
     private readonly habitGoalRepository: HabitGoalRepository,
@@ -39,7 +36,6 @@ export class GetDailyProgressUseCase {
       return left(new HabitGoalNotFoundError())
     }
 
-    // Dates in YYYY-MM-DD format can be compared as text.
     const today = todayInSaoPaulo()
     if (goal.startDate > today) {
       return left(
@@ -63,6 +59,7 @@ export class GetDailyProgressUseCase {
       )
     }
 
+    // REGRA: R4 soma os registros da meta na data consultada.
     const totalCompleted =
       await this.practiceRecordRepository.sumQuantityByGoalIdAndDate(
         input.goalId,
@@ -75,6 +72,7 @@ export class GetDailyProgressUseCase {
       unit: goal.unit,
       dailyTarget: goal.dailyTarget,
       totalCompleted,
+      // REGRA: R4 o dia é cumprido quando a soma alcança ou supera o alvo.
       completed: totalCompleted >= goal.dailyTarget,
     })
   }

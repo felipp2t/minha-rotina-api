@@ -6,12 +6,10 @@ import type { Database } from '../../database.js'
 import { DrizzleHabitGoalMapper } from '../mappers/drizzle-habit-goal-mapper.js'
 import { habitGoals } from '../schema/habit-goals.js'
 
-// Persists habit goals and performs atomic closure and paginated lookups.
 export class DrizzleHabitGoalRepository implements HabitGoalRepository {
   constructor(private readonly database: Database) {}
 
-  // FOR UPDATE conflicts with the practice writer's FOR SHARE lock.
-  // Timestamp is determined after acquiring the lock, and only on first closure.
+  // REGRA: R3 — serializa encerramento com registros concorrentes.
   close(id: string): Promise<HabitGoal | null> {
     return this.database.db.transaction(async (transaction) => {
       const [goal] = await transaction
@@ -32,6 +30,7 @@ export class DrizzleHabitGoalRepository implements HabitGoalRepository {
   }
 
   async create(goal: HabitGoal): Promise<boolean> {
+    // REGRA: R5 — o índice parcial impede duplicatas mesmo em criações concorrentes.
     const rows = await this.database.db
       .insert(habitGoals)
       .values(DrizzleHabitGoalMapper.toDrizzle(goal))

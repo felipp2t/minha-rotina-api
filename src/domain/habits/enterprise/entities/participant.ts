@@ -6,7 +6,6 @@ export interface ParticipantProps {
   email: string
 }
 
-// Encapsulates participant data independently of HTTP and persistence.
 export class Participant extends Entity<ParticipantProps> {
   get name() {
     return this.props.name

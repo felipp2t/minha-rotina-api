@@ -7,14 +7,12 @@ import { DrizzlePracticeRecordMapper } from '../mappers/drizzle-practice-record-
 import { habitGoals } from '../schema/habit-goals.js'
 import { practiceRecords } from '../schema/practice-records.js'
 
-// Persists practice records in PostgreSQL.
 export class DrizzlePracticeRecordRepository
   implements PracticeRecordRepository
 {
   constructor(private readonly database: Database) {}
 
-  // Locks the goal with FOR SHARE while inserting. If a closure is in progress,
-  // this waits for it and then no longer finds the goal open, so nothing is saved.
+  // REGRA: R3 — grava somente se a meta continuar aberta após obter o bloqueio.
   create(record: PracticeRecord): Promise<boolean> {
     return this.database.db.transaction(async (transaction) => {
       const [openGoal] = await transaction
@@ -38,7 +36,6 @@ export class DrizzlePracticeRecordRepository
     })
   }
 
-  // Counts and reads the page in one consistent snapshot, as participants do.
   findManyByGoalId(goalId: string, { page, limit }: PaginationInput) {
     return this.database.db.transaction(
       async (transaction) => {
@@ -71,8 +68,6 @@ export class DrizzlePracticeRecordRepository
     return row ? DrizzlePracticeRecordMapper.toDomain(row) : null
   }
 
-  // SUM over all records of the date, without pagination. PostgreSQL returns
-  // the sum of integers as text (bigint), so it is converted to a number.
   async sumQuantityByGoalIdAndDate(goalId: string, date: string) {
     const [result] = await this.database.db
       .select({

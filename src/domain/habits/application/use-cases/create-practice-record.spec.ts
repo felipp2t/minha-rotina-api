@@ -11,7 +11,6 @@ import { HabitGoalClosedError } from './errors/habit-goal-closed-error.js'
 import { HabitGoalNotFoundError } from './errors/habit-goal-not-found-error.js'
 import { InvalidPracticeDateError } from './errors/invalid-practice-date-error.js'
 
-// "Today" in the tests is 2026-10-13 at noon in São Paulo (15:00 UTC).
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date('2026-10-13T15:00:00Z'))
@@ -79,8 +78,8 @@ describe('Create practice record', () => {
   })
 
   it.each([
-    '2026-10-08', // before the start date
-    '2026-10-14', // tomorrow
+    '2026-10-08',
+    '2026-10-14',
   ])('rejects %s outside the goal period (R2)', async (date) => {
     const { records, register } = setup()
 
@@ -136,7 +135,6 @@ describe('Create practice record', () => {
 
   it('uses the São Paulo calendar near midnight, not UTC', async () => {
     const { register } = setup()
-    // 23:30 on 2026-10-13 in São Paulo is already 2026-10-14 in UTC.
     vi.setSystemTime(new Date('2026-10-14T02:30:00Z'))
 
     const tomorrowResult = await register('2026-10-14')

@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { Entity } from './entity.js'
 import { UniqueEntityID } from './unique-entity-id.js'
 
-// Minimal test entity for verifying shared identity behavior.
 class TestEntity extends Entity<{ name: string }> {
   constructor(id?: UniqueEntityID) {
     super({ name: 'Test' }, id)

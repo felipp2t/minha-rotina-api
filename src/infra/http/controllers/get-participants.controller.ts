@@ -7,7 +7,6 @@ import {
   toParticipantDto,
 } from '../schemas/participant.schema.js'
 
-// Registers ordered, paginated participant listing with complete totals.
 export const getParticipantsController: FastifyPluginCallbackZod = (
   app,
   _options,

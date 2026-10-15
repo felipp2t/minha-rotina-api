@@ -10,7 +10,6 @@ export interface PaginationInput {
   limit: number
 }
 
-// Defines participant persistence operations required by the use cases.
 export abstract class ParticipantRepository {
   abstract create(participant: Participant): Promise<boolean>
   abstract findByEmail(email: string): Promise<Participant | null>

@@ -10,7 +10,6 @@ export const createHabitGoalBodySchema = z.strictObject({
     .trim()
     .min(1, 'Informe um nome.')
     .max(100, 'O nome deve ter no máximo 100 caracteres.'),
-  // Matches the existing PostgreSQL integer column without allowing overflow.
   dailyTarget: z.number().int().positive().max(2_147_483_647),
   unit: habitGoalUnitSchema,
   startDate: z.iso

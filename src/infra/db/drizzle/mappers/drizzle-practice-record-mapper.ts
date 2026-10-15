@@ -3,7 +3,6 @@ import { UniqueEntityID } from '../../../../core/entities/unique-entity-id.js'
 import { PracticeRecord } from '../../../../domain/habits/enterprise/entities/practice-record.js'
 import type { practiceRecords } from '../schema/practice-records.js'
 
-// Converts practice record rows to domain records and back to insert values.
 export class DrizzlePracticeRecordMapper {
   static toDomain(
     row: InferSelectModel<typeof practiceRecords>,

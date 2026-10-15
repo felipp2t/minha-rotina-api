@@ -7,7 +7,6 @@ export const errorSchema = z.object({
   }),
 })
 
-// Builds the public error DTO without exposing internal error details.
 export function toErrorResponse(
   message: string,
   fields: { field: string; message: string }[] = [],

@@ -1,6 +1,5 @@
 import { UniqueEntityID } from './unique-entity-id.js'
 
-// Provides identity, properties and value-based identity comparison to entities.
 export abstract class Entity<Props> {
   private readonly _id: UniqueEntityID
   protected props: Props
