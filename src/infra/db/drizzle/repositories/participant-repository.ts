@@ -8,7 +8,6 @@ import type { Database } from '../../database.js'
 import { DrizzleParticipantMapper } from '../mappers/drizzle-participant-mapper.js'
 import { participants } from '../schema/participants.js'
 
-// Persists participants and reads a consistent, ordered page from PostgreSQL.
 export class DrizzleParticipantRepository implements ParticipantRepository {
   constructor(private readonly database: Database) {}
 

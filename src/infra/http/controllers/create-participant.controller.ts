@@ -8,7 +8,6 @@ import {
   toParticipantDto,
 } from '../schemas/participant.schema.js'
 
-// Registers participant creation and translates expected duplicate-email errors.
 export const createParticipantController: FastifyPluginCallbackZod = (
   app,
   _options,

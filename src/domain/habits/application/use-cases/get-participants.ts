@@ -3,7 +3,6 @@ import type {
   ParticipantRepository,
 } from '../repositories/participant-repository.js'
 
-// Lists participants and calculates pagination metadata from the full total.
 export class GetParticipantsUseCase {
   constructor(private readonly participantRepository: ParticipantRepository) {}
 

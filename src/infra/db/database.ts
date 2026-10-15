@@ -19,7 +19,6 @@ export function getDatabase(): Database {
   return activeDatabase
 }
 
-// Opens PostgreSQL and applies versioned migrations before serving requests.
 export async function openDatabase(
   connectionString = process.env.DATABASE_URL,
 ) {

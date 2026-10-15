@@ -12,7 +12,6 @@ interface ParticipantGoalsResult {
   pagination: { page: number; limit: number; total: number; totalPages: number }
 }
 
-// Lists one participant's goals and computes pagination metadata.
 export class GetParticipantGoalsUseCase {
   constructor(
     private readonly habitGoalRepository: HabitGoalRepository,

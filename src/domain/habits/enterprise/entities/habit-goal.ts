@@ -12,7 +12,7 @@ export interface HabitGoalProps {
   closedAt: Date | null
 }
 
-// Shares goal data with creation, lookup and practice use cases.
+// REGRA: R1 — alvo e unidade não podem ser alterados; uma nova configuração exige outra meta.
 export class HabitGoal extends Entity<HabitGoalProps> {
   get participantId() {
     return this.props.participantId
@@ -22,6 +22,7 @@ export class HabitGoal extends Entity<HabitGoalProps> {
     return this.props.name
   }
 
+  // REGRA: R5 — normaliza o nome para comparar sem diferenciar caixa ou espaços externos.
   get normalizedName() {
     return this.props.name.trim().toLowerCase()
   }

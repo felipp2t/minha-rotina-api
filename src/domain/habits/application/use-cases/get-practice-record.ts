@@ -10,7 +10,6 @@ export interface GetPracticeRecordInput {
   id: string
 }
 
-// Finds a record only inside the informed goal; a record of another goal is not found.
 export class GetPracticeRecordUseCase {
   constructor(
     private readonly habitGoalRepository: HabitGoalRepository,

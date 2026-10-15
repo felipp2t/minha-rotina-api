@@ -8,7 +8,6 @@ export interface CreateParticipantInput {
   email: string
 }
 
-// Normalizes participant data and enforces email uniqueness, including races.
 export class CreateParticipantUseCase {
   constructor(private readonly participantRepository: ParticipantRepository) {}
 

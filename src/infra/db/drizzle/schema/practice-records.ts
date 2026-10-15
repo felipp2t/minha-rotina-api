@@ -2,7 +2,6 @@ import { sql } from 'drizzle-orm'
 import { check, date, index, integer, pgTable, uuid } from 'drizzle-orm/pg-core'
 import { habitGoals } from './habit-goals.js'
 
-// Stores quantities practiced for a goal on a calendar date.
 export const practiceRecords = pgTable(
   'practice_records',
   {

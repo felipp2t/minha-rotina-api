@@ -45,7 +45,6 @@ export const participantListSchema = z.object({
 export type CreateParticipantDto = z.infer<typeof createParticipantBodySchema>
 export type ParticipantDto = z.infer<typeof participantSchema>
 
-// Explicitly maps the internal participant to the public response DTO.
 export function toParticipantDto(participant: Participant): ParticipantDto {
   return {
     id: participant.id.toString(),

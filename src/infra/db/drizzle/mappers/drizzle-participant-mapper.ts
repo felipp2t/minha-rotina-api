@@ -3,7 +3,6 @@ import { UniqueEntityID } from '../../../../core/entities/unique-entity-id.js'
 import { Participant } from '../../../../domain/habits/enterprise/entities/participant.js'
 import type { participants } from '../schema/participants.js'
 
-// Converts participant rows to domain records and back to insert values.
 export class DrizzleParticipantMapper {
   static toDomain(row: InferSelectModel<typeof participants>): Participant {
     return Participant.create(

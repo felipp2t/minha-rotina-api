@@ -7,7 +7,6 @@ export interface PracticeRecordProps {
   quantity: number
 }
 
-// One occurrence of a practice; its quantity uses the unit of its goal.
 export class PracticeRecord extends Entity<PracticeRecordProps> {
   get goalId() {
     return this.props.goalId

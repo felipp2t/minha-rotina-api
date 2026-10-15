@@ -10,7 +10,6 @@ import {
   toPracticeRecordDto,
 } from '../schemas/practice-record.schema.js'
 
-// Registers practice creation; missing goals map to 404 and R2/R3 violations to 400.
 export const createPracticeRecordController: FastifyPluginCallbackZod = (
   app,
   _options,

@@ -8,7 +8,6 @@ import {
 } from '../schemas/habit-goal.schema.js'
 import { emptyQuerySchema } from '../schemas/participant.schema.js'
 
-// Registers UUID lookup and maps the domain's not-found error to HTTP 404.
 export const closeHabitGoalController: FastifyPluginCallbackZod = (
   app,
   _options,

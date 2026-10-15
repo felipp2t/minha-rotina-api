@@ -11,7 +11,6 @@ import { HabitGoalNotFoundError } from './errors/habit-goal-not-found-error.js'
 import { InvalidProgressDateError } from './errors/invalid-progress-date-error.js'
 import { GetDailyProgressUseCase } from './get-daily-progress.js'
 
-// "Today" in the tests is 2026-10-13 at noon in São Paulo (15:00 UTC).
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date('2026-10-13T15:00:00Z'))
@@ -99,8 +98,8 @@ describe('Get daily progress', () => {
   })
 
   it.each([
-    '2026-10-08', // before the start date
-    '2026-10-14', // tomorrow
+    '2026-10-08',
+    '2026-10-14',
   ])('rejects %s outside the goal period', async (date) => {
     const { progress } = setup()
 

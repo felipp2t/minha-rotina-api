@@ -24,7 +24,6 @@ function validationFields(error: FastifyError) {
   })
 }
 
-// Centralizes request validation and unexpected errors in the public contract.
 export function registerErrorHandler(app: FastifyInstance) {
   app.setErrorHandler<FastifyError>((error, request, reply) => {
     if (hasZodFastifySchemaValidationErrors(error)) {
